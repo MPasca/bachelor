@@ -57,10 +57,14 @@ public:
 	std::string getAssetPath();
 
 	void move(CharacterState substate, std::pair<int, int> newCoordinates);
-	std::pair<int, int> getAttackCoordinates();
+	std::pair<int, int> attack();
+	void decreaseCooldown();
+	bool hasCooldown();
 private:
 	int lives;
 	int attackCooldown;
+	std::pair<int, int> getAttackCoordinates();
+	void triggerAttackCooldown();
 };
 
 

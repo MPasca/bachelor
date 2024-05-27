@@ -80,6 +80,29 @@ std::pair<int, int> PlayerCharacter::getAttackCoordinates()
 	return coordinatesToAttack;
 }
 
+void PlayerCharacter::triggerAttackCooldown()
+{
+	this->attackCooldown == COOLDOWN;
+}
+
+std::pair<int, int> PlayerCharacter::attack()
+{
+	if (this->attackCooldown > 0) return this->getCoordinatesInGameChunks();
+
+	std::pair<int, int> coordinatesToAttack = this->getAttackCoordinates();
+	
+}
+
+bool PlayerCharacter::hasCooldown()
+{
+	return this->attackCooldown > 0;
+}
+
+void PlayerCharacter::decreaseCooldown()
+{
+	this->attackCooldown--;
+}
+
 
 
 

@@ -26,13 +26,25 @@ MainState previousProgramState;
 
 GameElement* gameElements;
 
+// ----- button title screen
+Button* titleButtons = NULL;
+// Backdrop viewBackdrop
+
+Button* endgameButtons = NULL;
+// Backdrop winBackdrop
+// Backdrop loseBackdrop
+
+// ------ in-game elements
+PlayerCharacter mainCharacter;
+NonplayerCharacter npCharacter;
+
 
 // ---------------------------------------------------- INIT GAME SURFACE
 
 void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 {
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setNumberOfNeighbors(crtNode->totNeighbors);
-	//if (crtNode->totNeighbors == 1) portals[numberOfPortals++] = { crtNode->coord.second, crtNode->coord.first };
+	if (crtNode->totNeighbors == 1) portals[numberOfPortals++] = { crtNode->coord.second, crtNode->coord.first };
 
 	bool* walls = (bool*)calloc(4, sizeof(bool));
 
@@ -81,14 +93,14 @@ bool populate_game_surface()
 {
 	bool success = true;
 
-	//portals = (std::pair<int, int>*)calloc(WIDTH, sizeof(std::pair<int, int>));
-	//if (portals == NULL)
-	//{
-	//	success = false;
-	//	std::cerr << "Failed to allocate memory for portals!\n";
-	//}
-	//else
-	//{
+	portals = (std::pair<int, int>*)calloc(WIDTH, sizeof(std::pair<int, int>));
+	if (portals == NULL)
+	{
+		success = false;
+		std::cerr << "Failed to allocate memory for portals!\n";
+	}
+	else
+	{
 		gameChunks = (GameChunk*)calloc(HEIGHT * WIDTH, sizeof(GameChunk));
 		if (gameChunks == NULL)
 		{
@@ -108,7 +120,7 @@ bool populate_game_surface()
 				dfs_visit(nodes, NULL);
 			}
 		}
-	//}
+	}
 
 	return success;
 }
@@ -127,9 +139,14 @@ void convert_maze_elements()
 
 bool initialize_game()
 {
+	bool success = true;
+
+	free(gameElements);
 	srand((NULL));
 
-	bool success = true;
+	mainCharacter = PlayerCharacter(std::pair<int, int>{0, 0}, "./assets/demo.png");
+	npCharacter = NonplayerCharacter(std::pair<int, int>{1, 1}, "./assets/knight_f_idle_anim_f0.png");
+
 
 	populate_game_surface();
 
@@ -143,7 +160,31 @@ bool initialize_game()
 	{
 		convert_maze_elements();
 
+		gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
+		gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
+
 		print_game_surface();
+
+	}
+
+	return success;
+}
+
+bool initialize_titlescreen()
+{
+	bool success = true;
+
+	free(gameElements);
+	gameElements = (GameElement*)calloc(3, sizeof(GameElement));
+	if (gameElements == NULL)
+	{
+		success = false;
+		std::cerr << "Failed to alloc memory for gameElements!\n";
+	}
+	else
+	{
+		//gameElements[0] = titleButtons[0].toGameElement();
+		//gameElements[1] = titleButtons[1].toGameElement();
 
 	}
 
@@ -162,21 +203,9 @@ bool initialize()
 	else
 	{
 		currentProgramState = GAME;
-		populate_game_surface();
+		previousProgramState = GAME;
 
-		gameElements = (GameElement*)calloc(WIDTH * HEIGHT + 2, sizeof(GameElement));	// first alloc memory for the map of the maze
-		if (gameElements == NULL)
-		{
-			success = false;
-			std::cerr << "Failed to alloc memory for gameElements!\n";
-		}
-		else
-		{
-			convert_maze_elements();
-
-			print_game_surface();
-
-		}
+		success = initialize_game();
 	}
 
 	return success;
@@ -201,11 +230,10 @@ int main(int argc, char* args[])
 	}
 	else
 	{
-		PlayerCharacter mainCharacter = PlayerCharacter(std::pair<int, int>{0, 0}, "./assets/demo.png");
-		NonplayerCharacter antagonist = NonplayerCharacter(std::pair<int, int>{1, 1}, "./assets/knight_f_idle_anim_f0.png");
-
 		//Main loop flag
 		bool quit = false;
+
+		int totGameELements = HEIGHT * WIDTH + 2;
 
 		//Event handler
 		SDL_Event e;
@@ -230,26 +258,41 @@ int main(int argc, char* args[])
 						if (previousProgramState != currentProgramState)
 						{
 							// initialize title_screen
+							totGameELements = 3;
 						}
 						// process input
 						break;
 					case GAME:
 						if (previousProgramState != GAME && previousProgramState != PAUSE_MENU )
 						{
-							//initialize_game();
+							initialize_game();
+							totGameELements = WIDTH * HEIGHT + 2;
 						}
-						process_player_state(&mainCharacter, &antagonist, inputState, 
-							gameChunks[mainCharacter.getCoordinatesInGameChunks().second * WIDTH + mainCharacter.getCoordinatesInGameChunks().first], 
-							portals, numberOfPortals);
-						std::cout << mainCharacter.getCoordinatesInGameChunks().first << " " << mainCharacter.getCoordinatesInGameChunks().second << "\n";
+						process_game_state(inputState, &mainCharacter, &npCharacter, gameChunks, portals, numberOfPortals);
+
+						gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
+						gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 						break;
 					case PAUSE_MENU:
+						if (previousProgramState != PAUSE_MENU && previousProgramState == GAME)
+						{
+							// initialize_ingame_menu();
+							totGameELements += 3;
+						}
 						// process input
 						break;
 					case WIN_SCREEN:
+						if (previousProgramState != currentProgramState && previousProgramState == GAME)
+						{
+							totGameELements = 3;
+						}
 						// process input
 						break;
 					case LOSE_SCREEN:
+						if (previousProgramState != currentProgramState && previousProgramState == GAME)
+						{
+							totGameELements = 3;
+						}
 						// process input
 						break;
 					default:
@@ -259,9 +302,7 @@ int main(int argc, char* args[])
 					previousProgramState = currentProgramState;
 				}
 
-				gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
-				gameElements[WIDTH * HEIGHT + 1] = GameElement(antagonist.getCoordinatesInPixels(), antagonist.getDimensions(), antagonist.getAssetPath());
-				fn_update(renderer, gameElements, viewports, 1, HEIGHT * WIDTH + 2);
+				fn_update(renderer, gameElements, viewports, 1, totGameELements);
 			}
 
 
