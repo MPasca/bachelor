@@ -91,7 +91,7 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 		if (!mainCharacter->hasCooldown())
 		{
 			std::pair<int, int> attackDirection = mainCharacter->attack();
-			if (npCharacter->getCoordinatesInGameChunks().first == attackDirection.first && npCharacter->getCoordinatesInGameChunks().second == attackDirection.second)
+			if (npCharacter->getCoordinatesInGameChunks() == attackDirection)
 				npCharacter->triggerStunCooldownTimer();
 		}
 		else
@@ -104,12 +104,11 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 	}
 }
 
-void process_npc_state(NonplayerCharacter* npc, PlayerCharacter* playerCharacter, GameChunk crtGameChunk)
+void process_npc_state(NonplayerCharacter* npCharacter, GameChunk crtGameChunk)
 {
-	if (npc->getStunCooldownTimer() == 0)
-	{
-		// move
-	}
+	// compute move direction
+	CharacterState state = MOVE_UP;
+	npCharacter->move(MOVE_UP, movement(state, npCharacter->getCoordinatesInGameChunks(), crtGameChunk.getWalls()));
 }
 
 
@@ -126,23 +125,14 @@ MainState process_game_state(InputState inputState, PlayerCharacter* mainCharact
 		break;
 	default:
 		process_player_state(mainCharacter, npCharacter, inputState, gameChunks[mainCharacter->getCoordinatesInGameChunks().second * WIDTH + mainCharacter->getCoordinatesInGameChunks().first], portals, numberOfPortals);
-		// use timer
-		//while (/*timer*/)
-		//{
-		if (mainCharacter->hasCooldown())
+		if (mainCharacter->getCoordinatesInGameChunks() == std::pair<int, int>(WIDTH-1, HEIGHT - 1))
 		{
-			mainCharacter->decreaseCooldown();
-			npCharacter->decrementStunCooldownTimer();
-		}
-		process_npc_state(npCharacter, mainCharacter, gameChunks[npCharacter->getCoordinatesInGameChunks().second * WIDTH + npCharacter->getCoordinatesInGameChunks().first]);
-		//}
-		if (mainCharacter->getCoordinatesInGameChunks() == std::pair<int, int>(WIDTH, HEIGHT))
-		{
+			std::cout << "You win!" << "\n";
 			nextMainState = WIN_SCREEN;
 		}
-		else if (mainCharacter->getCoordinatesInGameChunks() == npCharacter->getCoordinatesInGameChunks()
-			&& npCharacter->getStunCooldownTimer() == 0)
+		else if (mainCharacter->getCoordinatesInGameChunks() == npCharacter->getCoordinatesInGameChunks() && npCharacter->getStunCooldownTimer() == 0)
 		{
+			std::cout << "You lose" << "\n";
 			nextMainState = LOSE_SCREEN;
 		}
 	}

@@ -28,7 +28,7 @@
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NonplayerCharacter.cpp" />
     <ClCompile Include="PlayerCharacter.cpp" />
-    <ClCompile Include="StateProcessing.cpp" />
+    <ClCompile Include="MenusStateProcessing.cpp" />
     <ClCompile Include="state_machine.cpp" />
     <ClCompile Include="vis_lib\GameElement.cpp" />
     <ClCompile Include="vis_lib\VisLib.cpp" />
@@ -41,6 +41,7 @@
     <ClInclude Include="input_processing\InputProcessing.h" />
     <ClInclude Include="maze_gen\MaGe.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="MenusStateProcessing.h" />
     <ClInclude Include="StateProcessing.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="vis_lib\GameElement.h" />

@@ -42,9 +42,6 @@
     <ClCompile Include="state_machine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateProcessing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="vis_lib\VisLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,6 +57,9 @@
     <ClCompile Include="GameStateProcessing.cpp">
       <Filter>Source Files\state_processing</Filter>
     </ClCompile>
+    <ClCompile Include="MenusStateProcessing.cpp">
+      <Filter>Source Files\state_processing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h">
@@ -72,9 +72,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
@@ -93,6 +90,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameStateProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
+    </ClInclude>
+    <ClInclude Include="StateProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
+    </ClInclude>
+    <ClInclude Include="MenusStateProcessing.h">
       <Filter>Header Files\state_processing</Filter>
     </ClInclude>
   </ItemGroup>

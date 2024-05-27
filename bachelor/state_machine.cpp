@@ -16,6 +16,7 @@
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Rect* viewports = NULL;
+int timer = 0;
 
 GameChunk* gameChunks;
 std::pair<int, int>* portals;
@@ -145,7 +146,7 @@ bool initialize_game()
 	srand((NULL));
 
 	mainCharacter = PlayerCharacter(std::pair<int, int>{0, 0}, "./assets/demo.png");
-	npCharacter = NonplayerCharacter(std::pair<int, int>{1, 1}, "./assets/knight_f_idle_anim_f0.png");
+	npCharacter = NonplayerCharacter(std::pair<int, int>{10, 1}, "./assets/knight_f_idle_anim_f0.png");
 
 
 	populate_game_surface();
@@ -267,11 +268,11 @@ int main(int argc, char* args[])
 						{
 							initialize_game();
 							totGameELements = WIDTH * HEIGHT + 2;
+							timer = 0;
 						}
+
 						process_game_state(inputState, &mainCharacter, &npCharacter, gameChunks, portals, numberOfPortals);
 
-						gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
-						gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 						break;
 					case PAUSE_MENU:
 						if (previousProgramState != PAUSE_MENU && previousProgramState == GAME)
@@ -300,6 +301,31 @@ int main(int argc, char* args[])
 					}
 
 					previousProgramState = currentProgramState;
+				}
+
+				if (currentProgramState == GAME)
+				{
+					timer++;
+					if (timer % 5 == 0)
+					{
+						timer = 0;
+						if (mainCharacter.hasCooldown())
+						{
+							mainCharacter.decreaseCooldown();
+						}
+
+						if (npCharacter.getStunCooldownTimer() > 0)
+						{
+							npCharacter.decrementStunCooldownTimer();
+						}
+						else
+						{
+							process_npc_state(&npCharacter, gameChunks[npCharacter.getCoordinatesInGameChunks().second * WIDTH + npCharacter.getCoordinatesInGameChunks().first]);
+						}
+					}
+
+					gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
+					gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 				}
 
 				fn_update(renderer, gameElements, viewports, 1, totGameELements);
