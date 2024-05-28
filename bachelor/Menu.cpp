@@ -1,52 +1,51 @@
 #include "Menu.h"
 
-Menu::Menu(std::pair<int, int> dimensions, std::string backdropPath, Button* buttons)
+Menu::Menu(std::pair<int, int> dimensions, std::pair<int, int> coordinates, std::string backdropPath)
 {
 	this->dimensions = dimensions;
 	this->backdropPath = backdropPath;
-	this->activeButton = buttons[0];
-	this->inactiveButton = buttons[1];
+	this->coordinates = coordinates;
+	this->currentButton = 0;
 }
 
 Menu::~Menu()
 {
-	free(this);
+	free(this->buttons);
 }
 
-void Menu::changeDimensions(std::pair<int, int> dimensions)
+void Menu::setButtons(Button* buttons, int numberOfButtons)
 {
-	this->dimensions = dimensions;
-}
-
-void Menu::changeBackdrop(std::string backdropPath)
-{
-	this->backdropPath = backdropPath;
+	this->buttons = buttons;
+	this->buttons[this->currentButton].setActiveStatus(ACTIVE_BTN);
+	this->numberOfButtons = numberOfButtons;
+	this->buttons[1].setActiveStatus(INACTIVE_BTN);
 }
 
 Button* Menu::getButtons()
 {
-	Button buttons[] = { activeButton, inactiveButton };
-	return buttons;
+	return this->buttons;
 }
 
 Button Menu::getActiveButton()
 {
-	return this->activeButton;
+	return this->buttons[this->currentButton];
 }
 
-std::pair<int, int> Menu::getDimensions()
+void Menu::changeActiveButton(int direction)
 {
-	return this->dimensions;
+	this->buttons[this->currentButton].setActiveStatus(INACTIVE_BTN);
+	this->currentButton = (this->currentButton + direction) % this->numberOfButtons;
+	this->buttons[this->currentButton].setActiveStatus(ACTIVE_BTN);
 }
 
-std::string Menu::getBackdrop()
+GameElement* Menu::toGameElements()
 {
-	return this->backdropPath;
-}
+	GameElement* result = (GameElement*)calloc(1 + this->numberOfButtons, sizeof(GameElement));
+	result[0] = GameElement(this->coordinates, this->dimensions, this->backdropPath);
+	for (int i = 0; i < this->numberOfButtons; i++)
+	{
+		result[1 + i] = GameElement(this->buttons[i].getCoordinates(), this->buttons[i].getDimensions(), this->buttons[i].getAssetPath());
+	}
 
-void Menu::changeActiveButton()
-{
-	Button auxButton = this->activeButton;
-	this->activeButton = this->inactiveButton;
-	this->inactiveButton = auxButton;
+	return result;
 }
