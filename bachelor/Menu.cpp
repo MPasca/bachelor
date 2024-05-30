@@ -10,7 +10,8 @@ Menu::Menu(std::pair<int, int> dimensions, std::pair<int, int> coordinates, std:
 
 Menu::~Menu()
 {
-	free(this->buttons);
+	if(this->buttons != NULL)
+		free(this->buttons);
 }
 
 void Menu::setButtons(Button* buttons, int numberOfButtons)

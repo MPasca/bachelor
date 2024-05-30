@@ -80,6 +80,7 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 	case MOVE_DOWN:
 	case MOVE_LEFT:
 	case MOVE_RIGHT:
+		std::cout << "move\n";
 		mainCharacter->move(nextState, movement(nextState, mainCharacter->getCoordinatesInGameChunks(),
 			crtGameChunk.getWalls()));
 		break;
@@ -111,30 +112,16 @@ void process_npc_state(NonplayerCharacter* npCharacter, GameChunk crtGameChunk)
 	npCharacter->move(MOVE_UP, movement(state, npCharacter->getCoordinatesInGameChunks(), crtGameChunk.getWalls()));
 }
 
-
-
-// ------------------------------------------------------------------------------------------------------- GAME SCREEN INPUT
-
 MainState process_game_state(InputState inputState, PlayerCharacter* mainCharacter, NonplayerCharacter* npCharacter, GameChunk* gameChunks, std::pair<int, int>* portals, int numberOfPortals)
 {
-	MainState nextMainState = NO_CHANGE;
+	MainState nextMainState = GAME_STATE;
 	switch (inputState)
 	{
 	case PAUSE:
-		nextMainState = PAUSE_MENU;
+		nextMainState = PAUSE_STATE;
 		break;
 	default:
 		process_player_state(mainCharacter, npCharacter, inputState, gameChunks[mainCharacter->getCoordinatesInGameChunks().second * WIDTH + mainCharacter->getCoordinatesInGameChunks().first], portals, numberOfPortals);
-		if (mainCharacter->getCoordinatesInGameChunks() == std::pair<int, int>(WIDTH-1, HEIGHT - 1))
-		{
-			std::cout << "You win!" << "\n";
-			nextMainState = WIN_SCREEN;
-		}
-		else if (mainCharacter->getCoordinatesInGameChunks() == npCharacter->getCoordinatesInGameChunks() && npCharacter->getStunCooldownTimer() == 0)
-		{
-			std::cout << "You lose" << "\n";
-			nextMainState = LOSE_SCREEN;
-		}
 	}
 
 	return nextMainState;

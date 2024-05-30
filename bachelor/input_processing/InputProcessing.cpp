@@ -10,6 +10,7 @@ InputState getNextSubstate(SDL_Keycode key)
 	{
 	case SDLK_ESCAPE:
 		substate = PAUSE;
+		break;
 	case SDLK_w:
 		substate = ARROW_UP;
 		break;
