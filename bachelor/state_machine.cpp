@@ -27,6 +27,8 @@ MainState previousProgramState;
 
 GameElement* gameElements;
 GameElement* auxElems = (GameElement*)calloc(3, sizeof(GameElement));
+paco::Node* pathNode;
+
 
 
 // ----- game views
@@ -42,8 +44,14 @@ NonplayerCharacter npCharacter;
 
 // ---------------------------------------------------- INIT GAME SURFACE
 
-void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
+void dfs_visit(mage::Node* crtNode, mage::Node* prevNode, paco::Node ** pathNodes)
 {
+	*pathNodes = (paco::Node*)malloc(sizeof(paco::Node));
+	(*pathNodes)->color = paco::WHITE;
+	(*pathNodes)->coordinates = crtNode->coord;
+	(*pathNodes)->numberOfNeighbors = crtNode->totNeighbors;
+	(*pathNodes)->neighbors = (paco::Node**)calloc((*pathNodes)->numberOfNeighbors, sizeof(paco::Node*));
+
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setNumberOfNeighbors(crtNode->totNeighbors);
 	if (crtNode->totNeighbors == 1) portals[numberOfPortals++] = { crtNode->coord.second, crtNode->coord.first };
 
@@ -65,7 +73,7 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 			}
 			else
 			{
-				dfs_visit(crtNode->neighbors[i], crtNode);
+				dfs_visit(crtNode->neighbors[i], crtNode, &((*pathNodes)->neighbors[i]));
 			}
 		}
 	}
@@ -118,7 +126,8 @@ bool populate_game_surface()
 			}
 			else
 			{
-				dfs_visit(nodes, NULL);
+				dfs_visit(nodes, NULL, &pathNode);
+				std::cout << "path nodes: " << pathNode->coordinates.first << " " << pathNode->coordinates.second << "\n";
 			}
 		}
 	}

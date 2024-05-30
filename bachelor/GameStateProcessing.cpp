@@ -1,4 +1,5 @@
 #include "GameStateProcessing.h"
+#include "path_computing/PaCo.h"
 
 CharacterState convert_input_to_player_state(InputState inputState)
 {
@@ -105,9 +106,16 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 	}
 }
 
-void process_npc_state(NonplayerCharacter* npCharacter, GameChunk crtGameChunk)
+paco::Node convert_to_node()
 {
-	// compute move direction
+	paco::Node result;
+
+	return result;
+}
+
+void process_npc_state(NonplayerCharacter* npCharacter, std::pair<int, int> goalCoordinates, GameChunk crtGameChunk)
+{
+
 	CharacterState state = MOVE_UP;
 	npCharacter->move(MOVE_UP, movement(state, npCharacter->getCoordinatesInGameChunks(), crtGameChunk.getWalls()));
 }

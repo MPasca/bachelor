@@ -10,4 +10,4 @@
 
 MainState process_game_state(InputState inputState, PlayerCharacter* mainCharacter, NonplayerCharacter* npCharacter, GameChunk* gameChunks, std::pair<int, int>* portals, int numberOfPortals);
 
-void process_npc_state(NonplayerCharacter* npCharacter, GameChunk crtGameChunk);
+void process_npc_state(NonplayerCharacter* npCharacter, std::pair<int, int> goalCoordinates, GameChunk crtGameChunk);
