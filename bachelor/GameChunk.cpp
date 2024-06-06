@@ -60,6 +60,11 @@ void GameChunk::setNumberOfNeighbors(int numberOfNeighbors)
 	this->numberOfNeighbors = numberOfNeighbors;
 }
 
+void GameChunk::setPathNode(paco::Node* pathNode)
+{
+	this->pathNode = pathNode;
+}
+
 // ------------- getters
 
 bool* GameChunk::getWalls()
@@ -70,4 +75,9 @@ bool* GameChunk::getWalls()
 int GameChunk::getNumberOfNeighbors()
 {
 	return this->numberOfNeighbors;
+}
+
+paco::Node* GameChunk::getPathNode()
+{
+	return this->pathNode;
 }

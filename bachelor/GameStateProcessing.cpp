@@ -113,7 +113,7 @@ paco::Node convert_to_node()
 	return result;
 }
 
-void process_npc_state(NonplayerCharacter* npCharacter, std::pair<int, int> goalCoordinates, GameChunk crtGameChunk)
+void process_npc_state(NonplayerCharacter* npCharacter, paco::Node * goal, GameChunk crtGameChunk)
 {
 
 	CharacterState state = MOVE_UP;

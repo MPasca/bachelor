@@ -4,7 +4,6 @@ Character::Character(std::pair<int, int> coordinates, std::pair<int, int> dimens
 {
 	this->coordinates = coordinates;
 	this->dimensions = dimensions;
-	this->healthPoints = healthPoints;
 	this->assetPath = assetPath;
 	this->direction = MOVE_LEFT;
 }
@@ -12,7 +11,6 @@ Character::Character(std::pair<int, int> coordinates, std::pair<int, int> dimens
 Character::Character()
 {
 	this->coordinates = { 0, 0 };
-	this->healthPoints = INITIAL_HEALTH_POINTS;
 	this->direction = MOVE_LEFT;
 	this->assetPath = "";
 	this->dimensions = { GAME_CHUNK, GAME_CHUNK };
@@ -37,11 +35,6 @@ std::pair<int, int> Character::getCoordinatesInGameChunks()
 	return this->coordinates;
 }
 
-int Character::getHealthPoints()
-{
-	return this->healthPoints;
-}
-
 
 std::string Character::getAssetPath()
 {
@@ -63,15 +56,5 @@ void Character::move(CharacterState playerState, std::pair<int, int> newCoordina
 {
 	this->direction = playerState;
 	this->coordinates = newCoordinates;
-}
-
-void Character::resetHealthPoints()
-{
-	this->healthPoints = INITIAL_HEALTH_POINTS;
-}
-
-void Character::decrementHealthPoint()
-{
-	this->healthPoints--;
 }
 

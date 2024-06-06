@@ -2,6 +2,7 @@
 #include<iostream>
 
 #include "./vis_lib/GameElement.h"
+#include "path_computing/PaCo.h"
 
 /*
 * coordinates.first = y axis
@@ -17,12 +18,15 @@ public:
 
 	void setWalls(bool walls[]);
 	void setNumberOfNeighbors(int numberOfNeighbors);
+	void setPathNode(paco::Node* pathNode);
 
 	bool* getWalls();
 	int getNumberOfNeighbors();
+	paco::Node* getPathNode();
 
 private:
 	int numberOfNeighbors;
+	paco::Node * pathNode;
 	bool* walls;
 };
 

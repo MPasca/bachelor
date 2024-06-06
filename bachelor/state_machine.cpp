@@ -1,10 +1,10 @@
 #include<iostream>
 
 #include "maze_gen/MaGe.h"
-#include "input_processing/InputProcessing.h"
 #include "StateProcessing.h"
 #include "vis_lib/VisLib.h"
 #include "vis_lib/GameElement.h"
+#include "path_computing/PaCo.h"
 
 #include "Utils.h"
 #include "GameChunk.h"
@@ -27,7 +27,6 @@ MainState previousProgramState;
 
 GameElement* gameElements;
 GameElement* auxElems = (GameElement*)calloc(3, sizeof(GameElement));
-paco::Node* pathNode;
 
 
 
@@ -44,13 +43,13 @@ NonplayerCharacter npCharacter;
 
 // ---------------------------------------------------- INIT GAME SURFACE
 
-void dfs_visit(mage::Node* crtNode, mage::Node* prevNode, paco::Node ** pathNodes)
+void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 {
-	*pathNodes = (paco::Node*)malloc(sizeof(paco::Node));
-	(*pathNodes)->color = paco::WHITE;
-	(*pathNodes)->coordinates = crtNode->coord;
-	(*pathNodes)->numberOfNeighbors = crtNode->totNeighbors;
-	(*pathNodes)->neighbors = (paco::Node**)calloc((*pathNodes)->numberOfNeighbors, sizeof(paco::Node*));
+	paco::Node *pathNodes = (paco::Node*)malloc(sizeof(paco::Node));
+	pathNodes->color = paco::WHITE;
+	pathNodes->coordinates = crtNode->coord;
+	pathNodes->numberOfNeighbors = crtNode->totNeighbors;
+	pathNodes->neighbors = (paco::Node**)calloc(pathNodes->numberOfNeighbors, sizeof(paco::Node*));
 
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setNumberOfNeighbors(crtNode->totNeighbors);
 	if (crtNode->totNeighbors == 1) portals[numberOfPortals++] = { crtNode->coord.second, crtNode->coord.first };
@@ -73,11 +72,13 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode, paco::Node ** pathNode
 			}
 			else
 			{
-				dfs_visit(crtNode->neighbors[i], crtNode, &((*pathNodes)->neighbors[i]));
+				dfs_visit(crtNode->neighbors[i], crtNode);
+				pathNodes->neighbors[i] = gameChunks[crtNode->neighbors[i]->coord.first * WIDTH + crtNode->neighbors[i]->coord.second].getPathNode();
 			}
 		}
 	}
 
+	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setPathNode(pathNodes);
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setWalls(walls);
 	crtNode->color = mage::WHITE;
 }
@@ -102,6 +103,7 @@ bool populate_game_surface()
 {
 	bool success = true;
 
+	numberOfPortals = 0;
 	portals = (std::pair<int, int>*)calloc(WIDTH, sizeof(std::pair<int, int>));
 	if (portals == NULL)
 	{
@@ -126,8 +128,7 @@ bool populate_game_surface()
 			}
 			else
 			{
-				dfs_visit(nodes, NULL, &pathNode);
-				std::cout << "path nodes: " << pathNode->coordinates.first << " " << pathNode->coordinates.second << "\n";
+				dfs_visit(nodes, NULL);
 			}
 		}
 	}
@@ -150,31 +151,35 @@ void convert_maze_elements()
 bool initialize_game()
 {
 	bool success = true;
+	numberOfPortals = 0;
 
 	free(gameElements);
 	srand((NULL));
 
-	mainCharacter = PlayerCharacter(std::pair<int, int>{0, 0}, "./assets/demo.png");
-	npCharacter = NonplayerCharacter(std::pair<int, int>{10, 1}, "./assets/knight_f_idle_anim_f0.png");
-
-
-	populate_game_surface();
-
-	gameElements = (GameElement*)calloc(WIDTH * HEIGHT + 2, sizeof(GameElement));	// first alloc memory for the map of the maze
-	if (gameElements == NULL)
+	free(gameChunks);
+	gameChunks = (GameChunk*)calloc(HEIGHT * WIDTH, sizeof(GameChunk));
+	if (gameChunks)
 	{
-		success = false;
-		std::cerr << "Failed to alloc memory for gameElements!\n";
-	}
-	else
-	{
-		convert_maze_elements();
+		mainCharacter.move(MOVE_RIGHT, { 0, 0 });
+		npCharacter.move(MOVE_LEFT, { 14, 0 });
 
-		gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
-		gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
+		populate_game_surface();
 
-		print_game_surface();
+		gameElements = (GameElement*)calloc(WIDTH * HEIGHT + 2, sizeof(GameElement));
+		if (gameElements == NULL)
+		{
+			success = false;
+			std::cerr << "Failed to alloc memory for gameElements!\n";
+		}
+		else
+		{
+			convert_maze_elements();
 
+			gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
+			gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
+
+			print_game_surface();
+		}
 	}
 
 	return success;
@@ -198,11 +203,13 @@ MainState async_game_updates()
 		}
 		else
 		{
-			process_npc_state(&npCharacter, gameChunks[npCharacter.getCoordinatesInGameChunks().second * WIDTH + npCharacter.getCoordinatesInGameChunks().first]);
+			//process_npc_state(&npCharacter, 
+			//	gameChunks[mainCharacter.getCoordinatesInGameChunks().second * WIDTH + mainCharacter.getCoordinatesInGameChunks().first].getPathNode(),
+			//	gameChunks[npCharacter.getCoordinatesInGameChunks().second * WIDTH + npCharacter.getCoordinatesInGameChunks().first]);
 		}
 	}
 
-	gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
+	//gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 
 	if (mainCharacter.getCoordinatesInGameChunks() == std::pair<int, int>(WIDTH - 1, HEIGHT - 1))
 	{
@@ -260,7 +267,7 @@ bool initialize_ingame_menu()
 {
 	bool success = true;
 
-	gameElements = (GameElement*)realloc(gameElements, (WIDTH * HEIGHT + 5) * sizeof(GameElement));
+	gameElements = (GameElement*)calloc(WIDTH * HEIGHT + 5, sizeof(GameElement));
 	if (gameElements == NULL)
 	{
 		success = false;
@@ -321,7 +328,7 @@ int initialize_new_state(MainState mainState)
 		break;
 	case PAUSE_STATE:
 		initialize_ingame_menu();
-		numberOfElements = HEIGHT * WIDTH + 5;
+		numberOfElements = HEIGHT * WIDTH + 4;
 		std::cout << numberOfElements << "\n";
 		break;
 	default:
@@ -335,7 +342,7 @@ bool initialize()
 {
 	bool success = true;
 
-	if (!fn_initialize(&window, &renderer, &viewports, "Test game loop"))
+	if (!fn_initialize(&window, &renderer, &viewports, "Demo"))
 	{
 		std::cerr << "Error initializing the window!\n";
 		success = false;
@@ -343,25 +350,36 @@ bool initialize()
 	else
 	{
 		Button* buttonsEndscreen = (Button*)calloc(2, sizeof(Button));
-		buttonsEndscreen[0] = Button(std::pair<int, int>{400, 448}, std::string(MENUS_SRC_PATH"/newgame"), GAME_STATE);
-		buttonsEndscreen[1] = Button(std::pair<int, int>{600, 448}, std::string(MENUS_SRC_PATH"/backtomenu"), TITLE_STATE);
-		loseScreen.setButtons(buttonsEndscreen, 2);
-		winScreen.setButtons(buttonsEndscreen, 2);
+		if (buttonsEndscreen)
+		{
+			buttonsEndscreen[0] = Button(std::pair<int, int>{400, 448}, std::string(MENUS_SRC_PATH"/newgame"), GAME_STATE);
+			buttonsEndscreen[1] = Button(std::pair<int, int>{600, 448}, std::string(MENUS_SRC_PATH"/backtomenu"), TITLE_STATE);
+			loseScreen.setButtons(buttonsEndscreen, 2);
+			winScreen.setButtons(buttonsEndscreen, 2);
+		}
 
 		Button* buttonsIngame = (Button*)calloc(2, sizeof(Button));
-		buttonsIngame[0] = Button(std::pair<int, int>{400, 448}, std::string(MENUS_SRC_PATH"/backtogame"), GAME_STATE);
-		buttonsIngame[1] = Button(std::pair<int, int>{600, 448}, std::string(MENUS_SRC_PATH"/backtomenu"), TITLE_STATE);
-		ingameScreen.setButtons(buttonsIngame, 2);
+		if (buttonsIngame)
+		{
+			buttonsIngame[0] = Button(std::pair<int, int>{400, 448}, std::string(MENUS_SRC_PATH"/backtogame"), GAME_STATE);
+			buttonsIngame[1] = Button(std::pair<int, int>{600, 448}, std::string(MENUS_SRC_PATH"/backtomenu"), TITLE_STATE);
+			ingameScreen.setButtons(buttonsIngame, 2);
+		}
 
 		Button* buttonsTitle = (Button*)calloc(2, sizeof(Button));
-		buttonsTitle[0] = Button(std::pair<int, int>{476, 352}, std::string(MENUS_SRC_PATH"/newgame"), GAME_STATE);
-		buttonsTitle[1] = Button(std::pair<int, int>{476, 448}, std::string(MENUS_SRC_PATH"/exit"), EXIT_STATE);
-		titleScreen.setButtons(buttonsTitle, 2);
+		if (buttonsTitle)
+		{
+			buttonsTitle[0] = Button(std::pair<int, int>{476, 352}, std::string(MENUS_SRC_PATH"/newgame"), GAME_STATE);
+			buttonsTitle[1] = Button(std::pair<int, int>{476, 448}, std::string(MENUS_SRC_PATH"/exit"), EXIT_STATE);
+			titleScreen.setButtons(buttonsTitle, 2);
+		}
 
-		currentProgramState = LOSE_STATE;
-		previousProgramState = LOSE_STATE;
+		mainCharacter = PlayerCharacter(std::pair<int, int>{0, 0}, "./assets/demo.png");
+		npCharacter = NonplayerCharacter(std::pair<int, int>{10, 1}, "./assets/knight_f_idle_anim_f0.png");
 
-		success = initialize_loseScreen();
+		currentProgramState = previousProgramState = TITLE_STATE;
+
+		success = initialize_titlescreen();
 	}
 
 	return success;
@@ -387,7 +405,8 @@ int main(int argc, char* args[])
 		//Main loop flag
 		bool quit = false;
 
-		int totGameELements = 3;
+		//int numberOfGameElements = HEIGHT * WIDTH + 2;
+		int numberOfGameElements = 3;
 
 		//Event handler
 		SDL_Event e;
@@ -397,11 +416,6 @@ int main(int argc, char* args[])
 			//Handle events on queue
 			while (SDL_PollEvent(&e) != 0)
 			{
-				if (currentProgramState != previousProgramState)
-				{
-					totGameELements = initialize_new_state(currentProgramState);
-				}
-
 				//User requests quit
 				if (e.type == SDL_QUIT)	
 				{
@@ -419,14 +433,11 @@ int main(int argc, char* args[])
 						gameElements = titleScreen.toGameElements();
 						break;
 
-					case GAME_STATE:
-						if (previousProgramState != GAME_STATE && previousProgramState != PAUSE_STATE)
-						{
-							timer = 0;
-						}
+					case GAME_STATE:						
 						nextProgramState = process_game_state(inputState, &mainCharacter, &npCharacter, gameChunks, portals, numberOfPortals);
 						gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
-						std::cout << "nextProgramState: " << nextProgramState << "\n";
+						//gameElements[WIDTH * HEIGHT].updateCoordinates(mainCharacter.getCoordinatesInPixels());
+						std::cout << "gameElemsCoordinates: " << gameElements[WIDTH * HEIGHT].getCoordinates().first << " " << gameElements[WIDTH * HEIGHT].getCoordinates().second << "\n";
 						break;
 
 					case PAUSE_STATE:
@@ -452,12 +463,18 @@ int main(int argc, char* args[])
 						nextProgramState = EXIT_STATE;
 						break;
 					}
-
+					
 					previousProgramState = currentProgramState;
-					if (nextProgramState != SAME_STATE)
+					if (nextProgramState != SAME_STATE && currentProgramState != GAME_STATE)
 					{
 						currentProgramState = nextProgramState;
 					}
+				}
+
+				if (previousProgramState != currentProgramState)
+				{
+					numberOfGameElements = initialize_new_state(currentProgramState);
+					previousProgramState = currentProgramState;
 				}
 
 				if (currentProgramState == EXIT_STATE)
@@ -466,12 +483,11 @@ int main(int argc, char* args[])
 				}
 				else
 				{
-					if (currentProgramState == GAME_STATE && previousProgramState == GAME_STATE)
+					if (currentProgramState == GAME_STATE)
 					{
 						currentProgramState = async_game_updates();
 					}
-
-					fn_update(renderer, gameElements, viewports, 1, totGameELements);
+					fn_update(renderer, gameElements, viewports, 1, numberOfGameElements);
 				}
 			}
 		}

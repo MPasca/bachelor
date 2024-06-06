@@ -10,8 +10,6 @@ Menu::Menu(std::pair<int, int> dimensions, std::pair<int, int> coordinates, std:
 
 Menu::~Menu()
 {
-	if(this->buttons != NULL)
-		free(this->buttons);
 }
 
 void Menu::setButtons(Button* buttons, int numberOfButtons)
@@ -42,10 +40,13 @@ void Menu::changeActiveButton(int direction)
 GameElement* Menu::toGameElements()
 {
 	GameElement* result = (GameElement*)calloc(1 + this->numberOfButtons, sizeof(GameElement));
-	result[0] = GameElement(this->coordinates, this->dimensions, this->backdropPath);
-	for (int i = 0; i < this->numberOfButtons; i++)
+	if (result)
 	{
-		result[1 + i] = GameElement(this->buttons[i].getCoordinates(), this->buttons[i].getDimensions(), this->buttons[i].getAssetPath());
+		result[0] = GameElement(this->coordinates, this->dimensions, this->backdropPath);
+		for (int i = 0; i < this->numberOfButtons; i++)
+		{
+			result[1 + i] = GameElement(this->buttons[i].getCoordinates(), this->buttons[i].getDimensions(), this->buttons[i].getAssetPath());
+		}
 	}
 
 	return result;
