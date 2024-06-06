@@ -25,7 +25,7 @@ namespace paco
     }DL_List;
 
 
-    std::pair<int, int> get_next_move(Node* root, Node* goal, DL_List* existingPath);
+    DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath);
 
     void demo();
 }
