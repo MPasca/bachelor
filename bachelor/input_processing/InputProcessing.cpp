@@ -1,8 +1,5 @@
 #include "InputProcessing.h"
 
-#include<iostream>
-#include <SDL.h>
-
 InputState getNextSubstate(SDL_Keycode key)
 {
 	InputState substate = IDLE_INPUT;
@@ -10,6 +7,7 @@ InputState getNextSubstate(SDL_Keycode key)
 	{
 	case SDLK_ESCAPE:
 		substate = PAUSE;
+		break;
 	case SDLK_w:
 		substate = ARROW_UP;
 		break;
@@ -32,6 +30,5 @@ InputState getNextSubstate(SDL_Keycode key)
 		break;
 	}
 
-	std::cout << "Input state: " << substate << "\n";
 	return substate;
 }

@@ -13,74 +13,113 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\state_processing">
+      <UniqueIdentifier>{91d93d21-51e4-465a-a008-adfbd67297d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\state_processing">
+      <UniqueIdentifier>{6f201052-d197-435e-a810-fef994359e2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VisLib">
+      <UniqueIdentifier>{91c9d098-53e7-41e6-95f3-f5bbfc12e3f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\VisLib">
+      <UniqueIdentifier>{a08ef584-f80b-44a5-b1d5-a3c671554577}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Maze">
+      <UniqueIdentifier>{2b5b10d2-7f5e-434a-9c3a-4df94648300e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Maze">
+      <UniqueIdentifier>{22fafd73-948c-4569-a888-9b64a3c093e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entities">
+      <UniqueIdentifier>{df3b775c-908b-4b3b-ba65-d98b821a03cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{a0f2b1d9-a614-472a-aab6-1e7056d25bad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Button.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Character.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameChunk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Menu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NonplayerCharacter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerCharacter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="state_machine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateProcessing.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GameStateProcessing.cpp">
+      <Filter>Source Files\state_processing</Filter>
     </ClCompile>
-    <ClCompile Include="vis_lib\VisLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="maze_gen\MaGe.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="MenusStateProcessing.cpp">
+      <Filter>Source Files\state_processing</Filter>
     </ClCompile>
     <ClCompile Include="input_processing\InputProcessing.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\state_processing</Filter>
+    </ClCompile>
+    <ClCompile Include="vis_lib\VisLib.cpp">
+      <Filter>Source Files\VisLib</Filter>
     </ClCompile>
     <ClCompile Include="vis_lib\GameElement.cpp">
+      <Filter>Source Files\VisLib</Filter>
+    </ClCompile>
+    <ClCompile Include="maze_gen\MaGe.cpp">
+      <Filter>Source Files\Maze</Filter>
+    </ClCompile>
+    <ClCompile Include="GameChunk.cpp">
+      <Filter>Source Files\Maze</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCharacter.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="NonplayerCharacter.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="path_computing\PaCo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Button.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Character.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameChunk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateProcessing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vis_lib\GameElement.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GameStateProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
     </ClInclude>
-    <ClInclude Include="input_processing\InputProcessing.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="StateProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
     </ClInclude>
-    <ClInclude Include="maze_gen\MaGe.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="MenusStateProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
     </ClInclude>
     <ClInclude Include="vis_lib\VisLib.h">
+      <Filter>Header Files\VisLib</Filter>
+    </ClInclude>
+    <ClInclude Include="vis_lib\GameElement.h">
+      <Filter>Header Files\VisLib</Filter>
+    </ClInclude>
+    <ClInclude Include="input_processing\InputProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
+    </ClInclude>
+    <ClInclude Include="maze_gen\MaGe.h">
+      <Filter>Header Files\Maze</Filter>
+    </ClInclude>
+    <ClInclude Include="GameChunk.h">
+      <Filter>Header Files\Maze</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="path_computing\PaCo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

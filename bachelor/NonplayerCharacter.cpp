@@ -14,46 +14,6 @@ NonplayerCharacter::~NonplayerCharacter()
 {
 }
 
-void NonplayerCharacter::setAssetPath(std::string filename)
-{
-	Character::setAssetPath(filename);
-}
-
-std::pair<int, int> NonplayerCharacter::getCoordinatesInPixels()
-{
-	return Character::getCoordinatesInPixels();
-}
-
-std::pair<int, int> NonplayerCharacter::getCoordinatesInGameChunks()
-{
-	return Character::getCoordinatesInGameChunks();
-}
-
-std::pair<int, int> NonplayerCharacter::getDimensions()
-{
-	return Character::getDimensions();
-}
-
-int NonplayerCharacter::getHealthPoints()
-{
-	return Character::getHealthPoints();
-}
-
-std::string NonplayerCharacter::getAssetPath()
-{
-	return Character::getAssetPath();
-}
-
-void NonplayerCharacter::move(CharacterState substate, std::pair<int, int> newCoordinates)
-{
-	Character::move(substate, newCoordinates);
-}
-
-void NonplayerCharacter::decrementHealthPoint()
-{
-	Character::decrementHealthPoint();
-}
-
 void NonplayerCharacter::triggerStunCooldownTimer()
 {
 	this->stunCooldown = COOLDOWN;

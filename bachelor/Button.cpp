@@ -7,11 +7,7 @@ Button::Button(std::pair<int, int> coordinates, std::string assetPath, MainState
 	this->width = BUTTON_WIDTH;
 	this->height = BUTTON_HEIGHT;
 	this->triggeredEvent = triggeredEvent;
-}
-
-Button::Button()
-{
-
+	this->buttonState = INACTIVE_BTN;
 }
 
 Button::~Button()
@@ -46,7 +42,12 @@ std::pair<int, int> Button::getCoordinates()
 
 std::string Button::getAssetPath()
 {
-	return this->assetPath;
+	return this->assetPath + this->buttonState;
+}
+
+void Button::setActiveStatus(std::string buttonState)
+{
+	this->buttonState = buttonState;
 }
 
 MainState Button::triggerEvent()

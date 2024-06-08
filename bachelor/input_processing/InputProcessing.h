@@ -1,4 +1,3 @@
-#pragma once
 #include<SDL.h>
 
 #include "../Utils.h"

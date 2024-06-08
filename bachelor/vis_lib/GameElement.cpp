@@ -7,6 +7,14 @@ GameElement::GameElement(std::pair<int, int> coordinates, std::pair<int, int> di
 	this->fileName = fileName;
 }
 
+GameElement::GameElement()
+{
+	this->coordinates = { 0, 0 };
+	this->dimRectangle = { 0, 0, 0, 0 };
+	this->fileName = "";
+
+}
+
 GameElement::~GameElement()
 {
 	clean();
