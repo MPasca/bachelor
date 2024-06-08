@@ -7,6 +7,7 @@ GameChunk::GameChunk()
 {
 	this->numberOfNeighbors = 0;
 	this->walls = (bool*)calloc(4, sizeof(bool));
+	this->pathNode = (paco::Node*)malloc(sizeof(paco::Node));
 }
 
 GameChunk::~GameChunk()

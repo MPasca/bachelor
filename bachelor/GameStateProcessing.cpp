@@ -102,7 +102,7 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 		}
 		break;
 	default:
-		nextState = IDLE;
+		break;
 	}
 }
 

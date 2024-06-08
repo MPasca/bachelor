@@ -13,19 +13,21 @@
 #include<SDL.h>
 #undef main
 
+SDL_Rect* viewports = NULL;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
-SDL_Rect* viewports = NULL;
 int timer = 0;
 
-GameChunk* gameChunks;
-std::pair<int, int>* portals;
+//GameChunk* gameChunks;
+GameChunk gameChunks[137];
+std::pair<int, int> portals[45];
 int numberOfPortals = 0;
 
 MainState currentProgramState;
 MainState previousProgramState;
 
-GameElement* gameElements;
+//GameElement* gameElements;
+GameElement gameElements[HEIGHT * WIDTH + 5];
 GameElement* auxElems = (GameElement*)calloc(3, sizeof(GameElement));
 
 
@@ -52,7 +54,15 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 	pathNodes->neighbors = (paco::Node**)calloc(pathNodes->numberOfNeighbors, sizeof(paco::Node*));
 
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setNumberOfNeighbors(crtNode->totNeighbors);
-	if (crtNode->totNeighbors == 1) portals[numberOfPortals++] = { crtNode->coord.second, crtNode->coord.first };
+
+	if (crtNode->totNeighbors == 1)
+	{
+		if (numberOfPortals < 44)
+		{
+			portals[numberOfPortals] = { crtNode->coord.second, crtNode->coord.first };
+			numberOfPortals++;
+		}
+	}
 
 	bool* walls = (bool*)calloc(4, sizeof(bool));
 
@@ -68,7 +78,7 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 		{
 			if (crtNode->neighbors[i]->color != mage::BLACK)
 			{
-				return;
+				continue;
 			}
 			else
 			{
@@ -104,32 +114,22 @@ bool populate_game_surface()
 	bool success = true;
 
 	numberOfPortals = 0;
-	portals = (std::pair<int, int>*)calloc(WIDTH, sizeof(std::pair<int, int>));
-	if (portals == NULL)
+	if (portals == nullptr)
 	{
 		success = false;
 		std::cerr << "Failed to allocate memory for portals!\n";
 	}
 	else
 	{
-		gameChunks = (GameChunk*)calloc(HEIGHT * WIDTH, sizeof(GameChunk));
-		if (gameChunks == NULL)
+		mage::Node* nodes = mage::fn_create(HEIGHT, WIDTH);
+		if (nodes == nullptr)
 		{
 			success = false;
-			std::cerr << "Failed to allocate memory for game surface!\n";
+			std::cerr << "Failed to fetch the generated maze!\n";
 		}
 		else
 		{
-			mage::Node* nodes = mage::fn_create(HEIGHT, WIDTH);
-			if (nodes == NULL)
-			{
-				success = false;
-				std::cerr << "Failed to fetch the generated maze!\n";
-			}
-			else
-			{
-				dfs_visit(nodes, NULL);
-			}
+			dfs_visit(nodes, NULL);
 		}
 	}
 
@@ -153,34 +153,19 @@ bool initialize_game()
 	bool success = true;
 	numberOfPortals = 0;
 
-	free(gameElements);
 	srand((NULL));
 
-	free(gameChunks);
-	gameChunks = (GameChunk*)calloc(HEIGHT * WIDTH, sizeof(GameChunk));
-	if (gameChunks)
-	{
-		mainCharacter.move(MOVE_RIGHT, { 0, 0 });
-		npCharacter.move(MOVE_LEFT, { 14, 0 });
+	mainCharacter.move(MOVE_RIGHT, { 0, 0 });
+	npCharacter.move(MOVE_LEFT, { 14, 0 });
 
-		populate_game_surface();
+	populate_game_surface();
 
-		gameElements = (GameElement*)calloc(WIDTH * HEIGHT + 2, sizeof(GameElement));
-		if (gameElements == NULL)
-		{
-			success = false;
-			std::cerr << "Failed to alloc memory for gameElements!\n";
-		}
-		else
-		{
-			convert_maze_elements();
+	convert_maze_elements();
 
-			gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
-			gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
+	gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
+	gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 
-			print_game_surface();
-		}
-	}
+	print_game_surface();
 
 	return success;
 }
@@ -229,17 +214,11 @@ bool initialize_winscreen()
 {
 	bool success = true;
 
-	free(gameElements);
-	gameElements = (GameElement*)calloc(3, sizeof(GameElement));
-	if (gameElements == NULL)
-	{
-		success = false;
-		std::cerr << "Failed to alloc memory for gameElements!\n";
-	}
-	else
-	{
-		gameElements = winScreen.toGameElements();
-	}
+	numberOfPortals = 0;
+
+	gameElements[0] = winScreen.toGameElements()[0];
+	gameElements[1] = winScreen.toGameElements()[1];
+	gameElements[2] = winScreen.toGameElements()[2];
 
 	return success;
 }
@@ -248,17 +227,11 @@ bool initialize_loseScreen()
 {
 	bool success = true;
 
-	free(gameElements);
-	gameElements = (GameElement*)calloc(3, sizeof(GameElement));
-	if (gameElements == NULL)
-	{
-		success = false;
-		std::cerr << "Failed to alloc memory for gameElements!\n";
-	}
-	else
-	{
-		gameElements = loseScreen.toGameElements();
-	}
+	numberOfPortals = 0;
+
+	gameElements[0] = loseScreen.toGameElements()[0];
+	gameElements[1] = loseScreen.toGameElements()[1];
+	gameElements[2] = loseScreen.toGameElements()[2];
 
 	return success;
 }
@@ -267,20 +240,11 @@ bool initialize_ingame_menu()
 {
 	bool success = true;
 
-	gameElements = (GameElement*)calloc(WIDTH * HEIGHT + 5, sizeof(GameElement));
-	if (gameElements == NULL)
+	auxElems = ingameScreen.toGameElements();
+	for (int i = 0; i < 3; i++)
 	{
-		success = false;
-		std::cerr << "Failed to alloc memory for gameElements!\n";
-	}
-	else
-	{
-		auxElems = ingameScreen.toGameElements();
-		for (int i = 0; i < 3; i++)
-		{
-			std::cout << auxElems[i].getPath() << " : {" << auxElems[i].getCoordinates().first << ", " << auxElems[i].getCoordinates().second << "}\n";
-			gameElements[WIDTH * HEIGHT + 2 + i] = auxElems[i];
-		}
+		std::cout << auxElems[i].getPath() << " : {" << auxElems[i].getCoordinates().first << ", " << auxElems[i].getCoordinates().second << "}\n";
+		gameElements[WIDTH * HEIGHT + 2 + i] = auxElems[i];
 	}
 
 	return success;
@@ -290,17 +254,9 @@ bool initialize_titlescreen()
 {
 	bool success = true;
 
-	free(gameElements);
-	gameElements = (GameElement*)calloc(3, sizeof(GameElement));
-	if (gameElements == NULL)
-	{
-		success = false;
-		std::cerr << "Failed to alloc memory for gameElements!\n";
-	}
-	else
-	{
-		gameElements = titleScreen.toGameElements();
-	}
+	gameElements[0] = titleScreen.toGameElements()[0];
+	gameElements[1] = titleScreen.toGameElements()[1];
+	gameElements[2] = titleScreen.toGameElements()[2];
 
 	return success;
 }
@@ -328,7 +284,7 @@ int initialize_new_state(MainState mainState)
 		break;
 	case PAUSE_STATE:
 		initialize_ingame_menu();
-		numberOfElements = HEIGHT * WIDTH + 4;
+		numberOfElements = HEIGHT * WIDTH + 5;
 		std::cout << numberOfElements << "\n";
 		break;
 	default:
@@ -341,8 +297,18 @@ int initialize_new_state(MainState mainState)
 bool initialize()
 {
 	bool success = true;
+	viewports = (SDL_Rect*)malloc(sizeof(SDL_Rect));
+	if (viewports == NULL)
+	{
+		std::cerr << "Error initializing the window!\n";
+		exit(-1);
+	}
+	viewports->x = 40;
+	viewports->y = 30;
+	viewports->w = 1000;
+	viewports->h = 600;
 
-	if (!fn_initialize(&window, &renderer, &viewports, "Demo"))
+	if (!fn_initialize(&window, &renderer, "Demo"))
 	{
 		std::cerr << "Error initializing the window!\n";
 		success = false;
@@ -361,8 +327,8 @@ bool initialize()
 		Button* buttonsIngame = (Button*)calloc(2, sizeof(Button));
 		if (buttonsIngame)
 		{
-			buttonsIngame[0] = Button(std::pair<int, int>{400, 448}, std::string(MENUS_SRC_PATH"/backtogame"), GAME_STATE);
-			buttonsIngame[1] = Button(std::pair<int, int>{600, 448}, std::string(MENUS_SRC_PATH"/backtomenu"), TITLE_STATE);
+			buttonsIngame[0] = Button(std::pair<int, int>{400, 348}, std::string(MENUS_SRC_PATH"/backtogame"), GAME_STATE);
+			buttonsIngame[1] = Button(std::pair<int, int>{600, 348}, std::string(MENUS_SRC_PATH"/backtomenu"), TITLE_STATE);
 			ingameScreen.setButtons(buttonsIngame, 2);
 		}
 
@@ -387,11 +353,9 @@ bool initialize()
 
 void close()
 {
-	free(gameElements);
-	free(gameChunks);
-	free(portals);
-	free(viewports);
-	free(renderer);
+	//free(gameElements);
+	//free(gameChunks);
+	//free(portals);
 }
 
 int main(int argc, char* args[])
@@ -429,19 +393,18 @@ int main(int argc, char* args[])
 					{
 					case TITLE_STATE:
 						nextProgramState = process_menu_state(inputState, &titleScreen);
-						std::cout << "nextProgramState: " << nextProgramState << "\n";
-						gameElements = titleScreen.toGameElements();
+						gameElements[0] = titleScreen.toGameElements()[0];
+						gameElements[1] = titleScreen.toGameElements()[1];
+						gameElements[2] = titleScreen.toGameElements()[2];
 						break;
 
 					case GAME_STATE:						
 						nextProgramState = process_game_state(inputState, &mainCharacter, &npCharacter, gameChunks, portals, numberOfPortals);
 						gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
-						//gameElements[WIDTH * HEIGHT].updateCoordinates(mainCharacter.getCoordinatesInPixels());
-						std::cout << "gameElemsCoordinates: " << gameElements[WIDTH * HEIGHT].getCoordinates().first << " " << gameElements[WIDTH * HEIGHT].getCoordinates().second << "\n";
 						break;
 
 					case PAUSE_STATE:
-						process_menu_state(inputState, &ingameScreen);
+						nextProgramState = process_menu_state(inputState, &ingameScreen);
 						auxElems = ingameScreen.toGameElements();
 						for (int i = 0; i < 3; i++)
 						{
@@ -451,12 +414,16 @@ int main(int argc, char* args[])
 
 					case WIN_STATE:
 						nextProgramState = process_menu_state(inputState, &winScreen);
-						gameElements = winScreen.toGameElements();
+						gameElements[0] = winScreen.toGameElements()[0];
+						gameElements[1] = winScreen.toGameElements()[1];
+						gameElements[2] = winScreen.toGameElements()[2];
 						break;
 
 					case LOSE_STATE:
 						nextProgramState = process_menu_state(inputState, &loseScreen);
-						gameElements = loseScreen.toGameElements();
+						gameElements[0] = loseScreen.toGameElements()[0];
+						gameElements[1] = loseScreen.toGameElements()[1];
+						gameElements[2] = loseScreen.toGameElements()[2];
 						break;
 
 					default:
@@ -465,7 +432,7 @@ int main(int argc, char* args[])
 					}
 					
 					previousProgramState = currentProgramState;
-					if (nextProgramState != SAME_STATE && currentProgramState != GAME_STATE)
+					if (nextProgramState != SAME_STATE || (currentProgramState == GAME_STATE && nextProgramState == PAUSE_STATE))
 					{
 						currentProgramState = nextProgramState;
 					}
@@ -473,7 +440,18 @@ int main(int argc, char* args[])
 
 				if (previousProgramState != currentProgramState)
 				{
-					numberOfGameElements = initialize_new_state(currentProgramState);
+					if (previousProgramState == PAUSE_STATE && currentProgramState == GAME_STATE)
+					{
+						numberOfGameElements = 137;
+					}
+					else
+					{
+						if (previousProgramState == PAUSE_STATE)
+						{
+							numberOfPortals = 0;
+						}
+						numberOfGameElements = initialize_new_state(currentProgramState);
+					}
 					previousProgramState = currentProgramState;
 				}
 
@@ -483,18 +461,17 @@ int main(int argc, char* args[])
 				}
 				else
 				{
+					fn_update(renderer, gameElements, viewports, 1, numberOfGameElements);
 					if (currentProgramState == GAME_STATE)
 					{
 						currentProgramState = async_game_updates();
 					}
-					fn_update(renderer, gameElements, viewports, 1, numberOfGameElements);
 				}
 			}
 		}
 	}
 
-	//Free resources and close SDL
-	//close();
+	fn_clean(window, renderer, viewports);
 
 	return 0;
 

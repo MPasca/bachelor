@@ -29,7 +29,7 @@ std::pair<int, int> PlayerCharacter::getAttackCoordinates()
 
 void PlayerCharacter::triggerAttackCooldown()
 {
-	this->attackCooldown == COOLDOWN;
+	this->attackCooldown = COOLDOWN;
 }
 
 std::pair<int, int> PlayerCharacter::attack()
@@ -38,6 +38,7 @@ std::pair<int, int> PlayerCharacter::attack()
 
 	std::pair<int, int> coordinatesToAttack = this->getAttackCoordinates();
 	
+	return coordinatesToAttack;
 }
 
 bool PlayerCharacter::hasCooldown()

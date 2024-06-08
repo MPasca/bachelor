@@ -229,9 +229,14 @@ namespace paco
 
     DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath)
     {
-        if (existingPath->first == NULL)
+        if (existingPath == NULL)
         {
             existingPath = path_from_node(root, *goal);
+            if (existingPath == NULL)
+            {
+                std::cerr << "Error creating the path for npc!\n";
+                exit(-1);
+            }
         }
         else if (search(existingPath, goal->coordinates) != NULL)
         {
@@ -242,6 +247,12 @@ namespace paco
         else
         {
             DL_List* newPath = path_from_list(goal, existingPath);
+            if (newPath == NULL)
+            {
+                std::cerr << "Error creating the path for npc!\n";
+                exit(-1);
+            }
+          
             concat_lists(existingPath, newPath);
         }
 
@@ -285,71 +296,73 @@ namespace paco
                 }
             }
 
-            nodes[0].neighbors[0] = &nodes[3];
-
-            nodes[1].neighbors[0] = &nodes[4];
-            nodes[1].neighbors[1] = &nodes[2];
-
-            nodes[2].neighbors[0] = &nodes[1];
-
-            nodes[3].neighbors[0] = &nodes[0];
-            nodes[3].neighbors[1] = &nodes[4];
-            nodes[3].neighbors[2] = &nodes[6];
-
-            nodes[4].neighbors[0] = &nodes[3];
-            nodes[4].neighbors[1] = &nodes[1];
-            nodes[4].neighbors[2] = &nodes[7];
-
-            nodes[5].neighbors[0] = &nodes[8];
-
-            nodes[6].neighbors[0] = &nodes[3];
-
-            nodes[7].neighbors[0] = &nodes[4];
-            nodes[7].neighbors[1] = &nodes[10];
-
-            nodes[8].neighbors[0] = &nodes[11];
-            nodes[8].neighbors[1] = &nodes[5];
-
-            nodes[9].neighbors[0] = &nodes[10];
-
-            nodes[10].neighbors[0] = &nodes[7];
-            nodes[10].neighbors[1] = &nodes[9];
-            nodes[10].neighbors[2] = &nodes[11];
-
-            nodes[11].neighbors[0] = &nodes[10];
-            nodes[11].neighbors[1] = &nodes[8];
-
-            DL_List* resultedPath = (DL_List*)malloc(sizeof(DL_List));
-            if (resultedPath)
+            if (nodes[0].neighbors && nodes[1].neighbors && nodes[2].neighbors && nodes[3].neighbors && nodes[4].neighbors && nodes[5].neighbors 
+                && nodes[6].neighbors && nodes[7].neighbors && nodes[8].neighbors && nodes[9].neighbors && nodes[10].neighbors && nodes[11].neighbors)
             {
-                resultedPath->first = NULL;
-                resultedPath->last = NULL;
+                nodes[0].neighbors[0] = &nodes[3];
+                nodes[1].neighbors[0] = &nodes[4];
+                nodes[1].neighbors[1] = &nodes[2];
 
-                resultedPath = get_next_move(&nodes[0], &nodes[5], resultedPath);
-                std::pair<int, int> nextCoordinates = resultedPath->first->coordinates;
-                delete_first(resultedPath);
-                std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
-                print_path(resultedPath);
+                nodes[2].neighbors[0] = &nodes[1];
 
-                resultedPath = get_next_move(&nodes[4], &nodes[5], resultedPath);
-                nextCoordinates = resultedPath->first->coordinates;
-                delete_first(resultedPath);
-                std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
-                print_path(resultedPath);
+                nodes[3].neighbors[0] = &nodes[0];
+                nodes[3].neighbors[1] = &nodes[4];
+                nodes[3].neighbors[2] = &nodes[6];
 
-                resultedPath = get_next_move(&nodes[10], &nodes[5], resultedPath);
-                nextCoordinates = resultedPath->first->coordinates;
-                delete_first(resultedPath);
-                std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
-                print_path(resultedPath);
+                nodes[4].neighbors[0] = &nodes[3];
+                nodes[4].neighbors[1] = &nodes[1];
+                nodes[4].neighbors[2] = &nodes[7];
 
-                resultedPath = get_next_move(&nodes[8], &nodes[0], resultedPath);
-                nextCoordinates = resultedPath->first->coordinates;
-                delete_first(resultedPath);
-                std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
-                print_path(resultedPath);
+                nodes[5].neighbors[0] = &nodes[8];
+
+                nodes[6].neighbors[0] = &nodes[3];
+
+                nodes[7].neighbors[0] = &nodes[4];
+                nodes[7].neighbors[1] = &nodes[10];
+
+                nodes[8].neighbors[0] = &nodes[11];
+                nodes[8].neighbors[1] = &nodes[5];
+
+                nodes[9].neighbors[0] = &nodes[10];
+
+                nodes[10].neighbors[0] = &nodes[7];
+                nodes[10].neighbors[1] = &nodes[9];
+                nodes[10].neighbors[2] = &nodes[11];
+
+                nodes[11].neighbors[0] = &nodes[10];
+                nodes[11].neighbors[1] = &nodes[8];
+
+                DL_List* resultedPath = (DL_List*)malloc(sizeof(DL_List));
+                if (resultedPath)
+                {
+                    resultedPath->first = NULL;
+                    resultedPath->last = NULL;
+
+                    resultedPath = get_next_move(&nodes[0], &nodes[5], resultedPath);
+                    std::pair<int, int> nextCoordinates = resultedPath->first->coordinates;
+                    delete_first(resultedPath);
+                    std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
+                    print_path(resultedPath);
+
+                    resultedPath = get_next_move(&nodes[4], &nodes[5], resultedPath);
+                    nextCoordinates = resultedPath->first->coordinates;
+                    delete_first(resultedPath);
+                    std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
+                    print_path(resultedPath);
+
+                    resultedPath = get_next_move(&nodes[10], &nodes[5], resultedPath);
+                    nextCoordinates = resultedPath->first->coordinates;
+                    delete_first(resultedPath);
+                    std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
+                    print_path(resultedPath);
+
+                    resultedPath = get_next_move(&nodes[8], &nodes[0], resultedPath);
+                    nextCoordinates = resultedPath->first->coordinates;
+                    delete_first(resultedPath);
+                    std::cout << "next move: " << nextCoordinates.first << ", " << nextCoordinates.second << "\n";
+                    print_path(resultedPath);
+                }
             }
-
         }
     }
 }

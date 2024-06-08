@@ -1,5 +1,7 @@
 #pragma once
 
+#include<iostream>
+
 namespace paco
 {
     typedef enum {
@@ -8,9 +10,9 @@ namespace paco
 
     typedef struct Node {
         std::pair<int, int> coordinates;
-        int numberOfNeighbors;
-        Node** neighbors;
-        Color color;
+        int numberOfNeighbors = 0;
+        Node** neighbors = nullptr;
+        Color color = WHITE;
     }Node;
 
     typedef struct node {
