@@ -18,18 +18,16 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 int timer = 0;
 
-//GameChunk* gameChunks;
-GameChunk gameChunks[137];
+GameChunk gameChunks[135];
 std::pair<int, int> portals[45];
 int numberOfPortals = 0;
 
 MainState currentProgramState;
 MainState previousProgramState;
 
-//GameElement* gameElements;
 GameElement gameElements[HEIGHT * WIDTH + 5];
 GameElement* auxElems = (GameElement*)calloc(3, sizeof(GameElement));
-
+paco::DL_List* existingPath = NULL;
 
 
 // ----- game views
@@ -47,11 +45,9 @@ NonplayerCharacter npCharacter;
 
 void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 {
-	paco::Node *pathNodes = (paco::Node*)malloc(sizeof(paco::Node));
-	pathNodes->color = paco::WHITE;
-	pathNodes->coordinates = crtNode->coord;
-	pathNodes->numberOfNeighbors = crtNode->totNeighbors;
-	pathNodes->neighbors = (paco::Node**)calloc(pathNodes->numberOfNeighbors, sizeof(paco::Node*));
+	paco::Node *pathNode = gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].getPathNode();
+	pathNode->numberOfNeighbors = crtNode->totNeighbors;
+	pathNode->neighbors = (paco::Node**)calloc(pathNode->numberOfNeighbors, sizeof(paco::Node*));
 
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setNumberOfNeighbors(crtNode->totNeighbors);
 
@@ -74,6 +70,8 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 		walls[2] = walls[2] || (crtNode->coord.second - crtNode->neighbors[i]->coord.second > 0);		// walls[2]: wall left
 		walls[3] = walls[3] || (crtNode->coord.second - crtNode->neighbors[i]->coord.second < 0);		// walls[3]: wall right
 
+		pathNode->neighbors[i] = gameChunks[crtNode->neighbors[i]->coord.first * WIDTH + crtNode->neighbors[i]->coord.second].getPathNode();
+
 		if (prevNode == nullptr || crtNode->neighbors[i] != prevNode)
 		{
 			if (crtNode->neighbors[i]->color != mage::BLACK)
@@ -83,12 +81,11 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 			else
 			{
 				dfs_visit(crtNode->neighbors[i], crtNode);
-				pathNodes->neighbors[i] = gameChunks[crtNode->neighbors[i]->coord.first * WIDTH + crtNode->neighbors[i]->coord.second].getPathNode();
 			}
 		}
 	}
 
-	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setPathNode(pathNodes);
+	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setPathNode(pathNode);
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setWalls(walls);
 	crtNode->color = mage::WHITE;
 }
@@ -107,6 +104,33 @@ void print_game_surface()
 		}
 		std::cout << "\n";
 	}
+}
+
+bool create_path_nodes()
+{
+	bool success = true;
+	for (int i = 0; i < HEIGHT; i++)
+	{
+		for (int j = 0; j < WIDTH; j++)
+		{
+			paco::Node* pathNode = (paco::Node*)malloc(sizeof(paco::Node));
+			if (pathNode)
+			{
+				pathNode->color = paco::WHITE;
+				pathNode->coordinates = { j, i };
+
+				gameChunks[i * WIDTH + j].setPathNode(pathNode);
+			}
+			else
+			{
+				std::cerr << "Failed to allocate memory for pathNode!\n";
+				success = false;
+				break;
+			}
+		}
+	}
+
+	return success;
 }
 
 bool populate_game_surface()
@@ -129,7 +153,14 @@ bool populate_game_surface()
 		}
 		else
 		{
-			dfs_visit(nodes, NULL);
+			if (create_path_nodes())
+			{
+				dfs_visit(nodes, NULL);
+			}
+			else
+			{
+				success = false;
+			}
 		}
 	}
 
@@ -152,6 +183,8 @@ bool initialize_game()
 {
 	bool success = true;
 	numberOfPortals = 0;
+	timer = 0;
+	existingPath = NULL;
 
 	srand((NULL));
 
@@ -173,10 +206,13 @@ bool initialize_game()
 MainState async_game_updates()
 {
 	MainState currentMainState = GAME_STATE;
+	std::pair<int, int> crtNpcCoords = npCharacter.getCoordinatesInGameChunks();
+	std::pair<int, int> crtMainChrCoords = mainCharacter.getCoordinatesInGameChunks();
+
 	timer++;
 	if (timer % 5 == 0)
 	{
-		timer = 0;
+		std::cout << "timer: " << timer << "\n";
 		if (mainCharacter.hasCooldown())
 		{
 			mainCharacter.decreaseCooldown();
@@ -188,22 +224,31 @@ MainState async_game_updates()
 		}
 		else
 		{
-			//process_npc_state(&npCharacter, 
-			//	gameChunks[mainCharacter.getCoordinatesInGameChunks().second * WIDTH + mainCharacter.getCoordinatesInGameChunks().first].getPathNode(),
-			//	gameChunks[npCharacter.getCoordinatesInGameChunks().second * WIDTH + npCharacter.getCoordinatesInGameChunks().first]);
+			if (crtNpcCoords == crtMainChrCoords)
+			{
+				return LOSE_STATE;
+			}
+			existingPath = process_npc_state(&npCharacter, 
+				gameChunks[crtMainChrCoords.second * WIDTH + crtMainChrCoords.first].getPathNode(),
+				gameChunks[crtNpcCoords.second * WIDTH + crtNpcCoords.first],
+				existingPath);
+		}
+
+		if (timer == 1000)
+		{
+			std::cout << "special event trigger\n";
+			timer = 0;
 		}
 	}
 
-	//gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
+	gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 
-	if (mainCharacter.getCoordinatesInGameChunks() == std::pair<int, int>(WIDTH - 1, HEIGHT - 1))
+	if (crtMainChrCoords.first == WIDTH - 1 && crtMainChrCoords.second == HEIGHT - 1)
 	{
-		std::cout << "You win!" << "\n";
 		currentMainState = WIN_STATE;
 	}
-	else if (mainCharacter.getCoordinatesInGameChunks() == npCharacter.getCoordinatesInGameChunks() && npCharacter.getStunCooldownTimer() == 0)
+	else if (crtMainChrCoords == crtNpcCoords && npCharacter.getStunCooldownTimer() == 0)
 	{
-		std::cout << "You lose" << "\n";
 		currentMainState = LOSE_STATE;
 	}
 
@@ -243,7 +288,6 @@ bool initialize_ingame_menu()
 	auxElems = ingameScreen.toGameElements();
 	for (int i = 0; i < 3; i++)
 	{
-		std::cout << auxElems[i].getPath() << " : {" << auxElems[i].getCoordinates().first << ", " << auxElems[i].getCoordinates().second << "}\n";
 		gameElements[WIDTH * HEIGHT + 2 + i] = auxElems[i];
 	}
 
@@ -285,7 +329,6 @@ int initialize_new_state(MainState mainState)
 	case PAUSE_STATE:
 		initialize_ingame_menu();
 		numberOfElements = HEIGHT * WIDTH + 5;
-		std::cout << numberOfElements << "\n";
 		break;
 	default:
 		break;
@@ -450,7 +493,10 @@ int main(int argc, char* args[])
 						{
 							numberOfPortals = 0;
 						}
-						numberOfGameElements = initialize_new_state(currentProgramState);
+						else
+						{
+							numberOfGameElements = initialize_new_state(currentProgramState);
+						}
 					}
 					previousProgramState = currentProgramState;
 				}
@@ -459,13 +505,14 @@ int main(int argc, char* args[])
 				{
 					quit = true;
 				}
-				else
+			}
+
+			if (quit == false)
+			{
+				fn_update(renderer, gameElements, viewports, 1, numberOfGameElements);
+				if (currentProgramState == GAME_STATE)
 				{
-					fn_update(renderer, gameElements, viewports, 1, numberOfGameElements);
-					if (currentProgramState == GAME_STATE)
-					{
-						currentProgramState = async_game_updates();
-					}
+					currentProgramState = async_game_updates();
 				}
 			}
 		}

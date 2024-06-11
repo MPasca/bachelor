@@ -81,7 +81,6 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 	case MOVE_DOWN:
 	case MOVE_LEFT:
 	case MOVE_RIGHT:
-		std::cout << "move\n";
 		mainCharacter->move(nextState, movement(nextState, mainCharacter->getCoordinatesInGameChunks(),
 			crtGameChunk.getWalls()));
 		break;
@@ -101,23 +100,37 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 			mainCharacter->decreaseCooldown();
 		}
 		break;
+	case IDLE:
+		nextState = IDLE;
 	default:
 		break;
 	}
 }
 
-paco::Node convert_to_node()
+CharacterState get_npc_direction(std::pair<int, int> prevCoordinates, std::pair<int, int> newCoordinates)
 {
-	paco::Node result;
+	CharacterState newCharacterState = prevCoordinates.first - newCoordinates.first > 0 ? MOVE_UP :
+		prevCoordinates.first - newCoordinates.first < 0 ? MOVE_DOWN :
+		prevCoordinates.second - newCoordinates.second > 0 ? MOVE_LEFT :
+		prevCoordinates.second - newCoordinates.second < 0 ? MOVE_RIGHT : IDLE;
 
-	return result;
+	return newCharacterState;
 }
 
-void process_npc_state(NonplayerCharacter* npCharacter, paco::Node * goal, GameChunk crtGameChunk)
+paco::DL_List* process_npc_state(NonplayerCharacter* npCharacter, paco::Node * goal, GameChunk crtGameChunk, paco::DL_List* existingPath)
 {
+	existingPath = paco::get_next_move(crtGameChunk.getPathNode(), goal, existingPath);
+	if (!existingPath || !existingPath->first)
+	{
+		std::cerr << "Path is empty!\n";
+		return NULL;
+	}
+	std::pair<int, int> nextCoordinates = existingPath->first->coordinates;
+	paco::delete_first(existingPath);
+	CharacterState state = get_npc_direction(npCharacter->getCoordinatesInGameChunks(), nextCoordinates);
+	npCharacter->move(state, nextCoordinates);
 
-	CharacterState state = MOVE_UP;
-	npCharacter->move(MOVE_UP, movement(state, npCharacter->getCoordinatesInGameChunks(), crtGameChunk.getWalls()));
+	return existingPath;
 }
 
 MainState process_game_state(InputState inputState, PlayerCharacter* mainCharacter, NonplayerCharacter* npCharacter, GameChunk* gameChunks, std::pair<int, int>* portals, int numberOfPortals)

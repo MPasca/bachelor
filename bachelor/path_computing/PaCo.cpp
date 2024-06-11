@@ -94,7 +94,7 @@ namespace paco
         if (root == NULL) return;
 
         delete_after_node(root->next);
-        free(root);
+        root->next = NULL;
     }
 
     DL_List* insert_after_key(DL_List* crtPath, ListNode* afterKey, DL_List* newPath) {
@@ -307,11 +307,11 @@ namespace paco
 
                 nodes[3].neighbors[0] = &nodes[0];
                 nodes[3].neighbors[1] = &nodes[4];
-                nodes[3].neighbors[2] = &nodes[6];
+                //nodes[3].neighbors[2] = &nodes[6];
 
                 nodes[4].neighbors[0] = &nodes[3];
                 nodes[4].neighbors[1] = &nodes[1];
-                nodes[4].neighbors[2] = &nodes[7];
+                //nodes[4].neighbors[2] = &nodes[7];
 
                 nodes[5].neighbors[0] = &nodes[8];
 
@@ -327,7 +327,7 @@ namespace paco
 
                 nodes[10].neighbors[0] = &nodes[7];
                 nodes[10].neighbors[1] = &nodes[9];
-                nodes[10].neighbors[2] = &nodes[11];
+                //nodes[10].neighbors[2] = &nodes[11];
 
                 nodes[11].neighbors[0] = &nodes[10];
                 nodes[11].neighbors[1] = &nodes[8];

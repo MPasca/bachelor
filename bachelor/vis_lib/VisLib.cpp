@@ -47,7 +47,7 @@
 		*window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		if (window == NULL)
 		{
-			std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
+			std::cerr << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
 			success = false;
 		}
 		else
@@ -55,7 +55,7 @@
 			*renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
 			if (*renderer == NULL)
 			{
-				std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << "\n";
+				std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << "\n";
 				success = false;
 			}
 			else

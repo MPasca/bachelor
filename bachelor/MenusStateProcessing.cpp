@@ -15,7 +15,6 @@ MainState process_menu_state(InputState inputState, Menu* crtMenu)
 		break;
 	case ATTACK_INPUT:
 		nextMainState = crtMenu->getActiveButton().triggerEvent();
-		std::cout << "nextMainState: " << nextMainState << "\n";
 		break;
 	default:
 		break;

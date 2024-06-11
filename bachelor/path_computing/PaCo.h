@@ -29,5 +29,7 @@ namespace paco
 
     DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath);
 
+    void delete_first(DL_List* existingPath);
+
     void demo();
 }
