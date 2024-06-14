@@ -198,8 +198,6 @@ bool initialize_game()
 	gameElements[WIDTH * HEIGHT] = GameElement(mainCharacter.getCoordinatesInPixels(), mainCharacter.getDimensions(), mainCharacter.getAssetPath());
 	gameElements[WIDTH * HEIGHT + 1] = GameElement(npCharacter.getCoordinatesInPixels(), npCharacter.getDimensions(), npCharacter.getAssetPath());
 
-	print_game_surface();
-
 	return success;
 }
 
@@ -480,40 +478,35 @@ int main(int argc, char* args[])
 						currentProgramState = nextProgramState;
 					}
 				}
-
-				if (previousProgramState != currentProgramState)
-				{
-					if (previousProgramState == PAUSE_STATE && currentProgramState == GAME_STATE)
-					{
-						numberOfGameElements = 137;
-					}
-					else
-					{
-						if (previousProgramState == PAUSE_STATE)
-						{
-							numberOfPortals = 0;
-						}
-						else
-						{
-							numberOfGameElements = initialize_new_state(currentProgramState);
-						}
-					}
-					previousProgramState = currentProgramState;
-				}
-
-				if (currentProgramState == EXIT_STATE)
-				{
-					quit = true;
-				}
 			}
+
+			if (currentProgramState == previousProgramState && currentProgramState == GAME_STATE)
+			{
+				currentProgramState = async_game_updates();
+			}
+
+			if (previousProgramState != currentProgramState)
+			{
+				if (previousProgramState == PAUSE_STATE && currentProgramState == GAME_STATE)
+				{
+					numberOfGameElements = 137;
+				}
+				else
+				{
+					numberOfGameElements = initialize_new_state(currentProgramState);
+				}
+				previousProgramState = currentProgramState;
+			}
+
+			if (currentProgramState == EXIT_STATE)
+			{
+				quit = true;
+			}
+
 
 			if (quit == false)
 			{
 				fn_update(renderer, gameElements, viewports, 1, numberOfGameElements);
-				if (currentProgramState == GAME_STATE)
-				{
-					currentProgramState = async_game_updates();
-				}
 			}
 		}
 	}
