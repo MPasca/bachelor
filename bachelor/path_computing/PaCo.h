@@ -13,7 +13,7 @@ namespace paco
         int numberOfNeighbors = 0;
         Node** neighbors = nullptr;
         Color color = WHITE;
-    }Node;
+    } Node;
 
     typedef struct node {
         std::pair<int, int> coordinates;
@@ -24,7 +24,7 @@ namespace paco
     typedef struct DL_List {
         ListNode* first;
         ListNode* last;
-    }DL_List;
+    } DL_List;
 
 
     DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath);

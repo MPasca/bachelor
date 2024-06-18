@@ -72,8 +72,9 @@ std::pair<int, int> movement(CharacterState characterState, std::pair<int, int> 
 	return newCoordinates;
 }
 
-void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* npCharacter, InputState inputState, GameChunk crtGameChunk, std::pair<int, int>* portals, int numberOfPortals)
+MainState process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* npCharacter, InputState inputState, GameChunk crtGameChunk, std::pair<int, int>* portals, int numberOfPortals)
 {
+	MainState nextMainState = GAME_STATE;
 	CharacterState nextState = convert_input_to_player_state(inputState);
 	switch (nextState)
 	{
@@ -83,11 +84,29 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 	case MOVE_RIGHT:
 		mainCharacter->move(nextState, movement(nextState, mainCharacter->getCoordinatesInGameChunks(),
 			crtGameChunk.getWalls()));
+		if (mainCharacter->getCoordinatesInGameChunks() == npCharacter->getCoordinatesInGameChunks())
+		{
+			if (npCharacter->getStunCooldownTimer() == 0)
+			{
+				nextMainState = LOSE_STATE;
+			}
+		}
 		break;
+
 	case INTERACT:
 		if (crtGameChunk.getNumberOfNeighbors() == 1)
+		{
 			mainCharacter->move(MOVE_UP, portals[rand() % (numberOfPortals - 1)]);
+			if (mainCharacter->getCoordinatesInGameChunks() == npCharacter->getCoordinatesInGameChunks())
+			{
+				if (npCharacter->getStunCooldownTimer() == 0)
+				{
+					nextMainState = LOSE_STATE;
+				}
+			}
+		}
 		break;
+
 	case ATTACK:
 		if (!mainCharacter->hasCooldown())
 		{
@@ -100,11 +119,12 @@ void process_player_state(PlayerCharacter* mainCharacter, NonplayerCharacter* np
 			mainCharacter->decreaseCooldown();
 		}
 		break;
-	case IDLE:
-		nextState = IDLE;
+
 	default:
 		break;
 	}
+
+	return nextMainState;
 }
 
 CharacterState get_npc_direction(std::pair<int, int> prevCoordinates, std::pair<int, int> newCoordinates)
@@ -142,7 +162,7 @@ MainState process_game_state(InputState inputState, PlayerCharacter* mainCharact
 		nextMainState = PAUSE_STATE;
 		break;
 	default:
-		process_player_state(mainCharacter, npCharacter, inputState, gameChunks[mainCharacter->getCoordinatesInGameChunks().second * WIDTH + mainCharacter->getCoordinatesInGameChunks().first], portals, numberOfPortals);
+		nextMainState = process_player_state(mainCharacter, npCharacter, inputState, gameChunks[mainCharacter->getCoordinatesInGameChunks().second * WIDTH + mainCharacter->getCoordinatesInGameChunks().first], portals, numberOfPortals);
 	}
 
 	return nextMainState;
