@@ -1,14 +1,5 @@
 #include "VisLib.h"
 
-#include<SDL.h>
-#include<SDL_image.h>
-
-#include <iostream>
-
-// 0 - game view
-// 1 - ingame view
-SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
-
 //  code created with the help of the Lazyfoo SDL2 tutorial
 
 // ---------------------------------- global variables
@@ -48,7 +39,7 @@ SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
 
 	// ----------- main functions
 
-	bool fn_initialize(SDL_Window** window, SDL_Renderer** renderer, SDL_Rect** viewports, std::string title)
+	bool fn_initialize(SDL_Window** window, SDL_Renderer** renderer, std::string title)
 	{
 		bool success = true;
 
@@ -56,7 +47,7 @@ SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
 		*window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		if (window == NULL)
 		{
-			std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
+			std::cerr << "Window could not be created! SDL Error: " << SDL_GetError() << "\n";
 			success = false;
 		}
 		else
@@ -64,7 +55,7 @@ SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
 			*renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
 			if (*renderer == NULL)
 			{
-				std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << "\n";
+				std::cerr << "Renderer could not be created! SDL Error: " << SDL_GetError() << "\n";
 				success = false;
 			}
 			else
@@ -73,18 +64,14 @@ SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
 			}
 		}
 
-		*viewports = (SDL_Rect*)calloc(2, sizeof(SDL_Rect));
-		(*viewports)[1] = { 40, 30, 1000, 600 };	// game viewport
-		(*viewports)[0] = { 400, 200, 180, 160 };	// ingame menu
-
-
 		return success;
 	}
 
-	void fn_clean(SDL_Window* window, SDL_Renderer* renderer)
+	void fn_clean(SDL_Window* window, SDL_Renderer* renderer, SDL_Rect* viewport)
 	{
 		SDL_DestroyWindow(window);
 		SDL_DestroyRenderer(renderer);
+		free(viewport);
 
 		SDL_Quit();
 	}
@@ -108,11 +95,9 @@ SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
 
 
 		// set the current viewport
-		SDL_RenderSetViewport(renderer, &viewports[currentViewport]);
-		if (currentViewport > 0)
-		{
-			SDL_RenderFillRect(renderer, &viewports[currentViewport]);
-		}
+		SDL_RenderSetViewport(renderer, viewports);
+
+		SDL_RenderFillRect(renderer, viewports);
 
 		for (int i = 0; i < numberOfGameElements; i++)
 		{
@@ -132,37 +117,40 @@ SDL_Rect viewports[] = { {40, 30, 1000, 600}, { 400, 200, 180, 160 } };
 		SDL_Renderer* renderer = NULL;
 		SDL_Rect* viewports = NULL;
 
-		if (fn_initialize(&window, &renderer, &viewports, "Demo VisLib"))
+		if (fn_initialize(&window, &renderer, "Demo VisLib"))
 		{
 			GameElement* gameElements = (GameElement*)calloc(3, sizeof(GameElement));
-			gameElements[0] = GameElement(
-				std::pair<int, int>{40, 30},
-				std::pair<int, int>{64, 64},
-				"./assets/demo.png");
-			gameElements[1] = GameElement(
-				std::pair<int, int>{128, 30},
-				std::pair<int, int>{64, 64},
-				"./assets/lizard_f_idle_anim_f0.png");
-			gameElements[2] = GameElement(
-				std::pair<int, int>{256, 30},
-				std::pair<int, int>{64, 64},
-				"./assets/lizard_m_idle_anim_f0.png");
-
-
-			bool quit = false;
-			SDL_Event event;
-			while (!quit)
+			if (gameElements)
 			{
-				while (SDL_PollEvent(&event) != 0)
+				gameElements[0] = GameElement(
+					std::pair<int, int>{40, 30},
+					std::pair<int, int>{64, 64},
+					"./assets/demo.png");
+				gameElements[1] = GameElement(
+					std::pair<int, int>{128, 30},
+					std::pair<int, int>{64, 64},
+					"./assets/lizard_f_idle_anim_f0.png");
+				gameElements[2] = GameElement(
+					std::pair<int, int>{256, 30},
+					std::pair<int, int>{64, 64},
+					"./assets/lizard_m_idle_anim_f0.png");
+
+
+				bool quit = false;
+				SDL_Event event;
+				while (!quit)
 				{
-					if (event.type == SDL_QUIT)
+					while (SDL_PollEvent(&event) != 0)
 					{
-						quit = true;
+						if (event.type == SDL_QUIT)
+						{
+							quit = true;
+						}
 					}
+					fn_update(renderer, gameElements, viewports, 1, 3);
 				}
-				fn_update(renderer, gameElements, viewports, 1, 3);
 			}
 		}
 
-		fn_clean(window, renderer);
+		fn_clean(window, renderer, viewports);
 	}

@@ -9,6 +9,7 @@ class GameElement
 {
 public:
 	GameElement(std::pair<int, int> coordinates, std::pair<int, int> dimensions, std::string fileName);
+	GameElement();
 	~GameElement();
 
 	void updateCoordinates(std::pair<int, int> coordinates);

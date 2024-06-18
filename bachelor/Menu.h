@@ -1,28 +1,27 @@
 #pragma once
 #include<iostream>
-
 #include "Button.h"
+
+#include "./vis_lib/GameElement.h"
 
 class Menu
 {
 public:
-	Menu(std::pair<int, int> dimensions, std::string backdropPath, Button* buttons);
+	Menu(std::pair<int, int> dimensions, std::pair<int, int> coordinates, std::string backdropPath);
 	~Menu();
 
-	void changeDimensions(std::pair<int, int> dimensions);
-	void changeBackdrop(std::string backdropPath);
+	void setButtons(Button* buttons, int numberOfButtons);
 
 	Button* getButtons();
 	Button getActiveButton();
 
-	std::pair<int, int> getDimensions();
-	std::string getBackdrop();
-	void changeActiveButton();
-
+	void changeActiveButton(int direction);
+	GameElement* toGameElements();
 
 private:
-	std::pair<int, int> dimensions;
-	Button activeButton, inactiveButton;
+	std::pair<int, int> dimensions, coordinates;
+	Button* buttons;
+	int currentButton, numberOfButtons;
 	std::string backdropPath;
 };
 
