@@ -15,10 +15,10 @@ namespace paco
         Color color = WHITE;
     } Node;
 
-    typedef struct node {
+    typedef struct ListNode {
         std::pair<int, int> coordinates;
-        struct node* next;
-        struct node* prev;
+        struct ListNode* next;
+        struct ListNode* prev;
     } ListNode;
 
     typedef struct DL_List {
@@ -30,6 +30,8 @@ namespace paco
     DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath);
 
     void delete_first(DL_List* existingPath);
+
+    void print_path(DL_List* path);
 
     void demo();
 }

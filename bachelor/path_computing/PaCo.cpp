@@ -17,7 +17,8 @@ namespace paco
     }
 
 
-    ListNode* search(DL_List* existingPath, std::pair<int, int> searchedCoordinates) {
+    ListNode* search_in_path(DL_List* existingPath, std::pair<int, int> searchedCoordinates) 
+    {
         ListNode* searchedNode = existingPath->first;
 
         if (existingPath->last->coordinates == searchedCoordinates)
@@ -107,6 +108,11 @@ namespace paco
     }
 
     void delete_first(DL_List* existingPath) {
+        if (existingPath == nullptr)
+        {
+            return;
+        }
+
         ListNode* auxNode = existingPath->first;
 
         if (existingPath->first == existingPath->last)
@@ -149,24 +155,10 @@ namespace paco
         return false;
     }
 
-    void refresh_dfs(Node* root)
-    {
-        root->color = WHITE;
-
-        for (int i = 0; i < root->numberOfNeighbors; i++)
-        {
-            if (root->neighbors[i]->color != WHITE)
-            {
-                refresh_dfs(root->neighbors[i]);
-            }
-        }
-
-    }
-
     bool dfs_visit(Node* root, DL_List* existingPath, DL_List* newPath)
     {
         root->color = GRAY;
-        if (search(existingPath, root->coordinates) != NULL)
+        if (search_in_path(existingPath, root->coordinates) != NULL)
         {
             insert_last(newPath, *root);
             return true;
@@ -188,7 +180,19 @@ namespace paco
 
         root->color = BLACK;
         return false;
+    }
 
+    void refresh_dfs(Node* root)
+    {
+        root->color = WHITE;
+
+        for (int i = 0; i < root->numberOfNeighbors; i++)
+        {
+            if (root->neighbors[i]->color != WHITE)
+            {
+                refresh_dfs(root->neighbors[i]);
+            }
+        }
     }
 
     DL_List* path_from_node(Node* root, Node searchedNode)
@@ -199,7 +203,6 @@ namespace paco
             resultedPath->first = NULL;
             resultedPath->last = NULL;
             dfs_visit(root, searchedNode, resultedPath);
-            insert_first(resultedPath, *root);
             refresh_dfs(root);
         }
 
@@ -214,7 +217,6 @@ namespace paco
             resultedPath->first = NULL;
             resultedPath->last = NULL;
             dfs_visit(root, searchedList, resultedPath);
-            insert_last(resultedPath, *root);
             refresh_dfs(root);
         }
 
@@ -223,7 +225,7 @@ namespace paco
 
     DL_List* concat_lists(DL_List* previousPath, DL_List* newPath)
     {
-        ListNode* sharedNode = search(previousPath, newPath->first->coordinates);
+        ListNode* sharedNode = search_in_path(previousPath, newPath->first->coordinates);
         return insert_after_key(previousPath, sharedNode, newPath);
     }
 
@@ -238,27 +240,25 @@ namespace paco
                 exit(-1);
             }
         }
-        else if (search(existingPath, goal->coordinates) != NULL)
-        {
-            ListNode* newTail = search(existingPath, goal->coordinates);
-            delete_after_node(newTail->next);
-            existingPath->last = newTail;
-        }
         else
         {
-            DL_List* newPath = path_from_list(goal, existingPath);
-            if (newPath == NULL)
+            ListNode* newTail = search_in_path(existingPath, goal->coordinates);
+            if (newTail != NULL)
             {
-                std::cerr << "Error creating the path for npc!\n";
-                exit(-1);
+                delete_after_node(newTail->next);
+                existingPath->last = newTail;
             }
-          
-            concat_lists(existingPath, newPath);
-        }
+            else
+            {
+                DL_List* newPath = path_from_list(goal, existingPath);
+                if (newPath == NULL)
+                {
+                    std::cerr << "Error creating the path for npc!\n";
+                    exit(-1);
+                }
 
-        if (root->coordinates == existingPath->first->coordinates)
-        {
-            delete_first(existingPath);
+                concat_lists(existingPath, newPath);
+            }
         }
 
         return existingPath;
