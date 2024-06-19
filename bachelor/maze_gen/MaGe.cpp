@@ -9,8 +9,6 @@
 
 namespace mage
 {
-
-
 	Node* make_node(std::pair<int, int> coord)
 	{
 		Node* newNode = (Node*)calloc(1, sizeof(Node));
@@ -28,6 +26,18 @@ namespace mage
 		newNode->neighbors = (Node**)calloc(4, sizeof(Node*));
 
 		return newNode;
+	}
+
+	bool find_node(Node* toFind, Node* collection)
+	{
+		for (int i = 0; i < collection->totNeighbors; i++)
+		{
+			if (collection->neighbors[i] == toFind)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void update_parents(Node* toUpdate, Node* newParent)
@@ -69,19 +79,6 @@ namespace mage
 		nodeLeft->totNeighbors += 1;
 	}
 
-
-	bool find_node(Node* toFind, Node* collection)
-	{
-		for (int i = 0; i < collection->totNeighbors; i++)
-		{
-			if (collection->neighbors[i] == toFind)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	Node* fn_generate(int n, int m)
 	{
 		// current row
@@ -92,6 +89,7 @@ namespace mage
 		if (crtRow == NULL)
 		{
 			std::cerr << "Node not created!";
+			exit(-1);
 		}
 
 		for (int j = 0; j < m; j++)
@@ -139,6 +137,7 @@ namespace mage
 			if (nextRow == NULL)
 			{
 				std::cerr << "Node not created!";
+				exit(-1);
 			}
 
 			for (int j = 0; j < m; j++)
@@ -151,17 +150,18 @@ namespace mage
 				}
 			}
 
-			bool mustDescend;
+			bool mustDescend = false;
 			for (int j = 0; j < m; j++)
 			{
-				if (j == 0 || crtRow[j - 1]->parent != crtRow[j]->parent)
+				if (j == 0 && crtRow[j]->parent != crtRow[j + 1]->parent)
 				{
 					mustDescend = true;
 				}
 
-				if ((j == m - 1 || crtRow[j]->parent != crtRow[j + 1]->parent) && mustDescend)
+				if ((j != 0 && crtRow[j - 1]->parent != crtRow[j]->parent) || mustDescend)
 				{
 					descend(crtRow[j], nextRow[j]);
+					mustDescend = false;
 					continue;
 				}
 
@@ -215,16 +215,28 @@ namespace mage
 		return true;
 	}
 
-	// function used for validating the maze
-	bool fn_validate(Node* maze, int n, int m) {
+	bool fn_validate(Node* root, int n, int m)
+	{
 		counter = 0;
-		return dfs_visit(maze, nullptr) && counter == n * m;
+		return dfs_visit(root, nullptr) && counter == n * m;
 	}
 
 
 	void fn_print(Node* root, Node* prevNode)
 	{
 
+	}
+
+	Node* fn_create(int height, int width)
+	{
+		srand(time(NULL));
+		Node* maze = (Node*)calloc(1, sizeof(Node));
+		do
+		{
+			maze = fn_generate(height, width);
+		} while (!fn_validate(maze, height, width));
+
+		return maze;
 	}
 
 	void fn_clean(Node* crtNode, Node* prevNode)
@@ -240,18 +252,6 @@ namespace mage
 			}
 			free(crtNode);
 		}
-	}
-
-	Node* fn_create(int height, int width)
-	{
-		srand(time(NULL));
-		Node* maze = (Node*)calloc(1, sizeof(Node));
-		do
-		{
-			maze = fn_generate(height, width);
-		} while (!fn_validate(maze, height, width));
-
-		return maze;
 	}
 
 	void fn_demo()

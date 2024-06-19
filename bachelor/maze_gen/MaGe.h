@@ -13,7 +13,7 @@ namespace mage
 		Node** neighbors;		// the list of nodes the element is connected with
 		std::pair<int, int> coord;		// the coordinates of the node
 		Color color;
-	}Node;
+	} Node;
 
 	Node* fn_create(int height, int width);
 

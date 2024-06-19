@@ -1,39 +1,6 @@
 #include "GameStateProcessing.h"
 #include "path_computing/PaCo.h"
 
-CharacterState convert_input_to_player_state(InputState inputState)
-{
-	CharacterState playerState = IDLE;
-
-	switch (inputState)
-	{
-	case ARROW_DOWN:
-		playerState = MOVE_DOWN;
-		break;
-	case ARROW_UP:
-		playerState = MOVE_UP;
-		break;
-	case ARROW_LEFT:
-		playerState = MOVE_LEFT;
-		break;
-	case ARROW_RIGHT:
-		playerState = MOVE_RIGHT;
-		break;
-	case INTERACT_INPUT:
-		playerState = INTERACT;
-		break;
-	case ATTACK_INPUT:
-		playerState = ATTACK;
-		break;
-	case IDLE_INPUT:
-	default:
-		playerState = IDLE;
-		break;
-	}
-
-	return playerState;
-}
-
 bool check_inbounds(CharacterState playerState, std::pair<int, int> playerCoordinates)
 {
 	bool isInbounds = (playerState != MOVE_UP || playerCoordinates.second != 0);

@@ -51,7 +51,7 @@ void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 
 	gameChunks[crtNode->coord.first * WIDTH + crtNode->coord.second].setNumberOfNeighbors(crtNode->totNeighbors);
 
-	if (crtNode->totNeighbors == 1)
+	if (crtNode->totNeighbors == 1 && crtNode->coord != std::pair<int,int>{HEIGHT-1, WIDTH-1})
 	{
 		if (numberOfPortals < 44)
 		{
@@ -146,6 +146,7 @@ bool populate_game_surface()
 	else
 	{
 		mage::Node* nodes = mage::fn_create(HEIGHT, WIDTH);
+
 		if (nodes == nullptr)
 		{
 			success = false;
@@ -162,6 +163,8 @@ bool populate_game_surface()
 				success = false;
 			}
 		}
+
+		mage::fn_clean(nodes, NULL);
 	}
 
 	return success;
