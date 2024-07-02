@@ -12,21 +12,24 @@ class GameChunk
 {
 public:
 	GameChunk();
-	~GameChunk();
 
-	GameElement toGameElement(std::pair<int, int>coordinates);
+	GameElement toGameElement();
 
-	void setWalls(bool walls[]);
+	void setNeighbors(bool neighbors[]);
+	void setCoordinates(std::pair<int, int> coordinates);
 	void setNumberOfNeighbors(int numberOfNeighbors);
 	void setPathNode(paco::Node* pathNode);
 
-	bool* getWalls();
+	bool* getNeighbors();
+	std::pair<int, int> getCoordinates();
 	int getNumberOfNeighbors();
 	paco::Node* getPathNode();
 
 private:
 	int numberOfNeighbors;
 	paco::Node * pathNode;
-	bool* walls;
+	bool* neighbors;
+	std::pair<int, int>coordinates;
+	void check_coordinates(std::pair<int, int> coordinates);
 };
 

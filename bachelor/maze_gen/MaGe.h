@@ -6,7 +6,6 @@ namespace mage
 		WHITE, GRAY, BLACK
 	}Color;
 
-
 	typedef struct Node {
 		int totNeighbors;
 		Node* parent;

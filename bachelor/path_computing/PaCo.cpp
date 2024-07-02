@@ -149,20 +149,6 @@ namespace paco
         return false;
     }
 
-    void refresh_dfs(Node* root)
-    {
-        root->color = WHITE;
-
-        for (int i = 0; i < root->numberOfNeighbors; i++)
-        {
-            if (root->neighbors[i]->color != WHITE)
-            {
-                refresh_dfs(root->neighbors[i]);
-            }
-        }
-
-    }
-
     bool dfs_visit(Node* root, DL_List* existingPath, DL_List* newPath)
     {
         root->color = GRAY;
@@ -188,7 +174,19 @@ namespace paco
 
         root->color = BLACK;
         return false;
+    }
 
+    void refresh_dfs(Node* root)
+    {
+        root->color = WHITE;
+
+        for (int i = 0; i < root->numberOfNeighbors; i++)
+        {
+            if (root->neighbors[i]->color != WHITE)
+            {
+                refresh_dfs(root->neighbors[i]);
+            }
+        }
     }
 
     DL_List* path_from_node(Node* root, Node searchedNode)
@@ -206,6 +204,12 @@ namespace paco
         return resultedPath;
     }
 
+    DL_List* concat_lists(DL_List* previousPath, DL_List* newPath)
+    {
+        ListNode* sharedNode = search(previousPath, newPath->first->coordinates);
+        return insert_after_key(previousPath, sharedNode, newPath);
+    }
+
     DL_List* path_from_list(Node* root, DL_List* searchedList)
     {
         DL_List* resultedPath = (DL_List*)malloc(sizeof(DL_List));
@@ -218,13 +222,7 @@ namespace paco
             refresh_dfs(root);
         }
 
-        return resultedPath;
-    }
-
-    DL_List* concat_lists(DL_List* previousPath, DL_List* newPath)
-    {
-        ListNode* sharedNode = search(previousPath, newPath->first->coordinates);
-        return insert_after_key(previousPath, sharedNode, newPath);
+        return concat_lists(searchedList, resultedPath);
     }
 
     DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath)
@@ -254,8 +252,6 @@ namespace paco
                     std::cerr << "Error creating the path for npc!\n";
                     exit(-1);
                 }
-
-                concat_lists(existingPath, newPath);
             }
         }
 

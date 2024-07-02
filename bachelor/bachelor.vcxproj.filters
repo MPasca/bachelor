@@ -39,7 +39,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="state_machine.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameStateProcessing.cpp">
@@ -48,19 +48,10 @@
     <ClCompile Include="MenusStateProcessing.cpp">
       <Filter>Source Files\state_processing</Filter>
     </ClCompile>
-    <ClCompile Include="input_processing\InputProcessing.cpp">
-      <Filter>Source Files\state_processing</Filter>
-    </ClCompile>
     <ClCompile Include="vis_lib\VisLib.cpp">
       <Filter>Source Files\VisLib</Filter>
     </ClCompile>
-    <ClCompile Include="vis_lib\GameElement.cpp">
-      <Filter>Source Files\VisLib</Filter>
-    </ClCompile>
     <ClCompile Include="maze_gen\MaGe.cpp">
-      <Filter>Source Files\Maze</Filter>
-    </ClCompile>
-    <ClCompile Include="GameChunk.cpp">
       <Filter>Source Files\Maze</Filter>
     </ClCompile>
     <ClCompile Include="PlayerCharacter.cpp">
@@ -78,16 +69,25 @@
     <ClCompile Include="Menu.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="InputDecoding.cpp">
+      <Filter>Source Files\state_processing</Filter>
+    </ClCompile>
+    <ClCompile Include="GameChunk.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="vis_lib\GameElement.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
     <ClCompile Include="path_computing\PaCo.cpp">
+      <Filter>Source Files\state_processing</Filter>
+    </ClCompile>
+    <ClCompile Include="GameProp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameStateProcessing.h">
-      <Filter>Header Files\state_processing</Filter>
     </ClInclude>
     <ClInclude Include="StateProcessing.h">
       <Filter>Header Files\state_processing</Filter>
@@ -98,16 +98,10 @@
     <ClInclude Include="vis_lib\VisLib.h">
       <Filter>Header Files\VisLib</Filter>
     </ClInclude>
-    <ClInclude Include="vis_lib\GameElement.h">
-      <Filter>Header Files\VisLib</Filter>
-    </ClInclude>
-    <ClInclude Include="input_processing\InputProcessing.h">
+    <ClInclude Include="input_processing\InputDecoding.h">
       <Filter>Header Files\state_processing</Filter>
     </ClInclude>
     <ClInclude Include="maze_gen\MaGe.h">
-      <Filter>Header Files\Maze</Filter>
-    </ClInclude>
-    <ClInclude Include="GameChunk.h">
       <Filter>Header Files\Maze</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
@@ -119,7 +113,22 @@
     <ClInclude Include="Menu.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
+    <ClInclude Include="GameStateProcessing.h">
+      <Filter>Header Files\state_processing</Filter>
+    </ClInclude>
+    <ClInclude Include="GameChunk.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="vis_lib\GameElement.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
     <ClInclude Include="path_computing\PaCo.h">
+      <Filter>Header Files\state_processing</Filter>
+    </ClInclude>
+    <ClInclude Include="GameProp.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

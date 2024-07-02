@@ -1,7 +1,17 @@
 #include "Button.h"
 
+void Button::check_coordinates(std::pair<int, int> coordinates)
+{
+	if (coordinates.first < 0 || coordinates.first > VIEWPORT_WIDTH || coordinates.second < 0 || coordinates.second > VIEWPORT_HEIGHT)
+	{
+		std::cerr << "Coordinates out of bounds!\n";
+		exit(ERR_COORDINATES_OUT_OF_BOUND);
+	}
+}
+
 Button::Button(std::pair<int, int> coordinates, std::string assetPath, MainState triggeredEvent)
 {
+	check_coordinates(coordinates);
 	this->coordinates = coordinates;
 	this->assetPath = assetPath;
 	this->width = BUTTON_WIDTH;
@@ -10,18 +20,20 @@ Button::Button(std::pair<int, int> coordinates, std::string assetPath, MainState
 	this->buttonState = INACTIVE_BTN;
 }
 
-Button::~Button()
-{
-}
-
 void Button::changeDimensions(int width, int height)
 {
+	if(width < 0 || width > VIEWPORT_WIDTH || height < 0 || height > VIEWPORT_HEIGHT)
+	{ 
+		std::cerr << "Incorrect dimensions!\n";
+		exit(ERR_INCORRECT_DIMENSIONS);
+	}
 	this->width = width;
 	this->height = height;
 }
 
 void Button::changeCoordinates(std::pair<int, int> coordinates)
 {
+	check_coordinates(coordinates);
 	this->coordinates = coordinates;
 }
 

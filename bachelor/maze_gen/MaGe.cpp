@@ -5,6 +5,7 @@
 #include<cmath>
 
 #include "MaGe.h"
+#include "../ErrorCodes.h"
 
 
 namespace mage
@@ -229,8 +230,14 @@ namespace mage
 
 	Node* fn_create(int height, int width)
 	{
+		if (height < 1 || width < 1)
+		{
+			std::cerr << "Height and width cannot be less than 1!\n";
+			exit(ERR_INCORRECT_DIMENSIONS);
+		}
+
 		srand(time(NULL));
-		Node* maze = (Node*)calloc(1, sizeof(Node));
+		Node* maze;
 		do
 		{
 			maze = fn_generate(height, width);
@@ -256,8 +263,7 @@ namespace mage
 
 	void fn_demo()
 	{
-		Node* maze = (Node*)calloc(1, sizeof(Node));
-		maze = fn_generate(9, 15);
+		Node* maze = fn_create(9, 15);
 
 		fn_print(maze, NULL);
 

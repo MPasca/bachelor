@@ -1,8 +1,8 @@
-#pragma once
-#include<iostream>
-#undef main
-
 #include "Menu.h"
-#include "Button.h"
 
-MainState process_menu_state(InputState inputState, Menu* crtMenu);
+#include "StateProcessing.h"
+
+namespace stateprocessing
+{
+	MainState process_menu_state(inputdcd::InputState inputState, Menu* crtMenu);
+}

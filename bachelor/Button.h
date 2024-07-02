@@ -7,7 +7,6 @@ class Button
 {
 public:
 	Button(std::pair<int, int> coordinates, std::string assetPath, MainState triggeredEvent);
-	~Button();
 
 	void changeDimensions(int width, int height);
 	void changeCoordinates(std::pair<int, int> coordinates);
@@ -25,4 +24,5 @@ private:
 	std::string assetPath;
 	std::string buttonState;
 	MainState triggeredEvent;
+	void check_coordinates(std::pair<int, int> coordinates);
 };
