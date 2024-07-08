@@ -24,7 +24,14 @@ GameChunk::GameChunk()
 GameElement GameChunk::toGameElement()
 {
 	std::pair<int, int> coordinatesInPixels = { this->coordinates.first * GAME_CHUNK + 40, this->coordinates.second * GAME_CHUNK + 20 };
+
 	std::string pathname;
+	if (this->coordinates == std::pair<int, int>{WIDTH - 1, HEIGHT - 1})
+	{
+		pathname = "end_locked.png";
+		return GameElement(coordinatesInPixels, { GAME_CHUNK, GAME_CHUNK }, MAZE_PATH + pathname);
+	}
+
 	switch (this->numberOfNeighbors)
 	{
 	case 4:

@@ -223,9 +223,24 @@ namespace mage
 	}
 
 
-	void fn_print(Node* root, Node* prevNode)
+	void fn_print(Node* crtNode, Node* prevNode)
 	{
-
+		crtNode->color = GRAY;
+		std::cout << "{ " << crtNode->coord.first << ", " << crtNode->coord.second << " }:\n";
+		std::cout << "neighbors: ";
+		for (int i = 0; i < crtNode->totNeighbors; i++)
+		{
+			std::cout << "{ " << crtNode->neighbors[i]->coord.first << ", " << crtNode->neighbors[i]->coord.second << " }, ";
+		}
+		std::cout << "\n";
+		for (int i = 0; i < crtNode->totNeighbors; i++)
+		{
+			if (crtNode->neighbors[i]->color == BLACK)
+			{
+				fn_print(crtNode->neighbors[i], crtNode);
+			}
+		}
+		crtNode->color = WHITE;
 	}
 
 	Node* fn_create(int height, int width)
@@ -257,17 +272,16 @@ namespace mage
 					fn_clean(crtNode->neighbors[i], crtNode);
 				}
 			}
+			free(crtNode->neighbors);
 			free(crtNode);
 		}
 	}
 
 	void fn_demo()
 	{
-		Node* maze = fn_create(9, 15);
+		Node* maze = fn_generate(100, 100);
 
-		fn_print(maze, NULL);
-
-		fn_clean(maze, nullptr);
+		std::cout << "success";
 	}
 
 }

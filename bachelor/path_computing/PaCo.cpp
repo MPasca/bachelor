@@ -16,6 +16,24 @@ namespace paco
         }
     }
 
+    void destroy_nodes(Node* root, Node* parent)
+    {
+        if (root != nullptr)
+        {
+            for (int i = 0; i < root->numberOfNeighbors; i++)
+            {
+                if (parent == nullptr || root->neighbors[i] != parent)
+                {
+                    destroy_nodes(root->neighbors[i], root);
+                }
+            }
+            free(root->neighbors);
+            free(root);
+        }
+    }
+
+
+
 
     ListNode* search(DL_List* existingPath, std::pair<int, int> searchedCoordinates) {
         ListNode* searchedNode = existingPath->first;
@@ -306,11 +324,11 @@ namespace paco
 
                 nodes[3].neighbors[0] = &nodes[0];
                 nodes[3].neighbors[1] = &nodes[4];
-                //nodes[3].neighbors[2] = &nodes[6];
+                nodes[3].neighbors[2] = &nodes[6];
 
                 nodes[4].neighbors[0] = &nodes[3];
                 nodes[4].neighbors[1] = &nodes[1];
-                //nodes[4].neighbors[2] = &nodes[7];
+                nodes[4].neighbors[2] = &nodes[7];
 
                 nodes[5].neighbors[0] = &nodes[8];
 
@@ -326,7 +344,7 @@ namespace paco
 
                 nodes[10].neighbors[0] = &nodes[7];
                 nodes[10].neighbors[1] = &nodes[9];
-                //nodes[10].neighbors[2] = &nodes[11];
+                nodes[10].neighbors[2] = &nodes[11];
 
                 nodes[11].neighbors[0] = &nodes[10];
                 nodes[11].neighbors[1] = &nodes[8];

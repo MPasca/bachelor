@@ -33,5 +33,7 @@ namespace paco
 
     void print_path(DL_List* path);
 
+    void destroy_nodes(Node* root, Node* parent);
+
     void demo();
 }

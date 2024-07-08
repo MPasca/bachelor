@@ -1,4 +1,5 @@
 #include<iostream>
+#include<stdlib.h>
 
 #include "maze_gen/MaGe.h"
 #include "StateProcessing.h"
@@ -53,6 +54,7 @@ MainState async_game_updates()
 	if (exitKey.isConsumed())
 	{
 		gameElements[WIDTH * HEIGHT + 2].setPath(PROP_PATH"/blank.png");
+		gameElements[WIDTH * HEIGHT - 1].setPath(MAZE_PATH"/end_unlocked.png");
 	}
 
 	if (teleportAbility.isConsumed())
@@ -69,15 +71,22 @@ MainState async_game_updates()
 	timer++;
 	if (timer % 8 == 0)
 	{
-		std::cout << "timer: " << timer << "\n";
 		if (mainCharacter.hasAttackCooldown())
 		{
 			mainCharacter.decreaseAttackCooldown();
+			if (!mainCharacter.hasAttackCooldown())
+			{
+				std::cout << "cooldown for attack ability expired\n";
+			}
 		}
 
 		if (mainCharacter.hasTeleportCooldown())
 		{
 			mainCharacter.decreaseTeleportCooldown();
+			if (!mainCharacter.hasTeleportCooldown())
+			{
+				std::cout << "cooldown for teleport ability expired\n";
+			}
 		}
 
 		if (npCharacter.getStunCooldownTimer() > 0)
@@ -115,7 +124,7 @@ MainState async_game_updates()
 	return GAME_STATE;
 }
 
-// ---------------------------------------------------- INIT GAME SURFACE
+// ---------------------------------------------------- INIT & DESTROY GAME SURFACE
 
 void dfs_visit(mage::Node* crtNode, mage::Node* prevNode)
 {
@@ -250,11 +259,7 @@ bool initialize_game()
 	srand((NULL));
 
 	mainCharacter.move(MOVE_RIGHT, { 0, 0 });
-	mainCharacter.resetCharacter();
 	npCharacter.move(MOVE_LEFT, { 14, 0 });
-
-	exitKey.resetProp();
-	teleportAbility.resetProp();
 
 	std::pair<int, int> auxCoordinates;
 	do {
@@ -282,6 +287,22 @@ bool initialize_game()
 
 	return success;
 }
+
+void exit_game_state()
+{
+	system("cls");
+	mainCharacter.resetCharacter();
+	exitKey.resetProp();
+	teleportAbility.resetProp();
+
+	paco::destroy_nodes(gameChunks[0].getPathNode(), nullptr);
+
+	for (int i = 0; i < HEIGHT * WIDTH; i++)
+	{
+		free(gameChunks[i].getNeighbors());
+	}
+}
+
 
 bool initialize_menu(Menu crtMenu, int numberOfElements)
 {
@@ -407,8 +428,10 @@ void print_game_surface()
 	}
 }
 
+
 int main(int argc, char* args[])
 {
+
 	if (!fn_initialize())
 	{
 		std::cerr << "Failed to initialize!\n";
@@ -507,6 +530,11 @@ int main(int argc, char* args[])
 				}
 				else
 				{
+					if (currentProgramState == WIN_STATE || currentProgramState == LOSE_STATE || (previousProgramState == PAUSE_STATE && currentProgramState == TITLE_STATE))
+					{
+						exit_game_state();
+					}
+
 					numberOfGameElements = initialize_new_state(currentProgramState);
 				}
 				previousProgramState = currentProgramState;

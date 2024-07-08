@@ -52,6 +52,9 @@
     <ClInclude Include="vis_lib\GameElement.h" />
     <ClInclude Include="vis_lib\VisLib.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="bachelor.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

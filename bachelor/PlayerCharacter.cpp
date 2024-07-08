@@ -22,7 +22,7 @@ void PlayerCharacter::resetCharacter()
 	this->attackCooldown = 0;
 	this->teleportCooldown = 0;
 
-	this->exitKey = true;
+	this->exitKey = false;
 	this->teleportUnlocked = false;
 }
 
