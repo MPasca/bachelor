@@ -8,7 +8,6 @@ class Menu
 {
 public:
 	Menu(std::pair<int, int> dimensions, std::pair<int, int> coordinates, std::string backdropPath);
-	~Menu();
 
 	void setButtons(Button* buttons, int numberOfButtons);
 
@@ -23,5 +22,7 @@ private:
 	Button* buttons;
 	int currentButton, numberOfButtons;
 	std::string backdropPath;
+	void check_coordinates(std::pair<int, int> coordinates);
+	void check_dimensions(std::pair<int, int> dimensions);
 };
 

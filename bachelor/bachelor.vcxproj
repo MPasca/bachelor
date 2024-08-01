@@ -22,24 +22,27 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="GameChunk.cpp" />
+    <ClCompile Include="GameProp.cpp" />
     <ClCompile Include="GameStateProcessing.cpp" />
-    <ClCompile Include="input_processing\InputProcessing.cpp" />
+    <ClCompile Include="InputDecoding.cpp" />
     <ClCompile Include="maze_gen\MaGe.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NonplayerCharacter.cpp" />
     <ClCompile Include="path_computing\PaCo.cpp" />
     <ClCompile Include="PlayerCharacter.cpp" />
     <ClCompile Include="MenusStateProcessing.cpp" />
-    <ClCompile Include="state_machine.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="vis_lib\GameElement.cpp" />
     <ClCompile Include="vis_lib\VisLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="ErrorCodes.h" />
     <ClInclude Include="GameChunk.h" />
+    <ClInclude Include="GameProp.h" />
     <ClInclude Include="GameStateProcessing.h" />
-    <ClInclude Include="input_processing\InputProcessing.h" />
+    <ClInclude Include="input_processing\InputDecoding.h" />
     <ClInclude Include="maze_gen\MaGe.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MenusStateProcessing.h" />
@@ -48,6 +51,9 @@
     <ClInclude Include="Utils.h" />
     <ClInclude Include="vis_lib\GameElement.h" />
     <ClInclude Include="vis_lib\VisLib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="bachelor.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -160,6 +166,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

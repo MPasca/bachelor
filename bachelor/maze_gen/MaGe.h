@@ -6,14 +6,13 @@ namespace mage
 		WHITE, GRAY, BLACK
 	}Color;
 
-
 	typedef struct Node {
 		int totNeighbors;
 		Node* parent;
 		Node** neighbors;		// the list of nodes the element is connected with
 		std::pair<int, int> coord;		// the coordinates of the node
 		Color color;
-	}Node;
+	} Node;
 
 	Node* fn_create(int height, int width);
 

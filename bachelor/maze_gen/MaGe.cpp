@@ -5,12 +5,11 @@
 #include<cmath>
 
 #include "MaGe.h"
+#include "../ErrorCodes.h"
 
 
 namespace mage
 {
-
-
 	Node* make_node(std::pair<int, int> coord)
 	{
 		Node* newNode = (Node*)calloc(1, sizeof(Node));
@@ -28,6 +27,18 @@ namespace mage
 		newNode->neighbors = (Node**)calloc(4, sizeof(Node*));
 
 		return newNode;
+	}
+
+	bool find_node(Node* toFind, Node* collection)
+	{
+		for (int i = 0; i < collection->totNeighbors; i++)
+		{
+			if (collection->neighbors[i] == toFind)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void update_parents(Node* toUpdate, Node* newParent)
@@ -69,19 +80,6 @@ namespace mage
 		nodeLeft->totNeighbors += 1;
 	}
 
-
-	bool find_node(Node* toFind, Node* collection)
-	{
-		for (int i = 0; i < collection->totNeighbors; i++)
-		{
-			if (collection->neighbors[i] == toFind)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	Node* fn_generate(int n, int m)
 	{
 		// current row
@@ -92,6 +90,7 @@ namespace mage
 		if (crtRow == NULL)
 		{
 			std::cerr << "Node not created!";
+			exit(-1);
 		}
 
 		for (int j = 0; j < m; j++)
@@ -139,6 +138,7 @@ namespace mage
 			if (nextRow == NULL)
 			{
 				std::cerr << "Node not created!";
+				exit(-1);
 			}
 
 			for (int j = 0; j < m; j++)
@@ -151,17 +151,18 @@ namespace mage
 				}
 			}
 
-			bool mustDescend;
+			bool mustDescend = false;
 			for (int j = 0; j < m; j++)
 			{
-				if (j == 0 || crtRow[j - 1]->parent != crtRow[j]->parent)
+				if (j == 0 && crtRow[j]->parent != crtRow[j + 1]->parent)
 				{
 					mustDescend = true;
 				}
 
-				if ((j == m - 1 || crtRow[j]->parent != crtRow[j + 1]->parent) && mustDescend)
+				if ((j != 0 && crtRow[j - 1]->parent != crtRow[j]->parent) || mustDescend)
 				{
 					descend(crtRow[j], nextRow[j]);
+					mustDescend = false;
 					continue;
 				}
 
@@ -215,16 +216,49 @@ namespace mage
 		return true;
 	}
 
-	// function used for validating the maze
-	bool fn_validate(Node* maze, int n, int m) {
+	bool fn_validate(Node* root, int n, int m)
+	{
 		counter = 0;
-		return dfs_visit(maze, nullptr) && counter == n * m;
+		return dfs_visit(root, nullptr) && counter == n * m;
 	}
 
 
-	void fn_print(Node* root, Node* prevNode)
+	void fn_print(Node* crtNode, Node* prevNode)
 	{
+		crtNode->color = GRAY;
+		std::cout << "{ " << crtNode->coord.first << ", " << crtNode->coord.second << " }:\n";
+		std::cout << "neighbors: ";
+		for (int i = 0; i < crtNode->totNeighbors; i++)
+		{
+			std::cout << "{ " << crtNode->neighbors[i]->coord.first << ", " << crtNode->neighbors[i]->coord.second << " }, ";
+		}
+		std::cout << "\n";
+		for (int i = 0; i < crtNode->totNeighbors; i++)
+		{
+			if (crtNode->neighbors[i]->color == BLACK)
+			{
+				fn_print(crtNode->neighbors[i], crtNode);
+			}
+		}
+		crtNode->color = WHITE;
+	}
 
+	Node* fn_create(int height, int width)
+	{
+		if (height < 1 || width < 1)
+		{
+			std::cerr << "Height and width cannot be less than 1!\n";
+			exit(ERR_INCORRECT_DIMENSIONS);
+		}
+
+		srand(time(NULL));
+		Node* maze;
+		do
+		{
+			maze = fn_generate(height, width);
+		} while (!fn_validate(maze, height, width));
+
+		return maze;
 	}
 
 	void fn_clean(Node* crtNode, Node* prevNode)
@@ -238,30 +272,16 @@ namespace mage
 					fn_clean(crtNode->neighbors[i], crtNode);
 				}
 			}
+			free(crtNode->neighbors);
 			free(crtNode);
 		}
 	}
 
-	Node* fn_create(int height, int width)
-	{
-		srand(time(NULL));
-		Node* maze = (Node*)calloc(1, sizeof(Node));
-		do
-		{
-			maze = fn_generate(height, width);
-		} while (!fn_validate(maze, height, width));
-
-		return maze;
-	}
-
 	void fn_demo()
 	{
-		Node* maze = (Node*)calloc(1, sizeof(Node));
-		maze = fn_generate(9, 15);
+		Node* maze = fn_generate(100, 100);
 
-		fn_print(maze, NULL);
-
-		fn_clean(maze, nullptr);
+		std::cout << "success";
 	}
 
 }

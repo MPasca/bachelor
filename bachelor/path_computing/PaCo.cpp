@@ -16,6 +16,24 @@ namespace paco
         }
     }
 
+    void destroy_nodes(Node* root, Node* parent)
+    {
+        if (root != nullptr)
+        {
+            for (int i = 0; i < root->numberOfNeighbors; i++)
+            {
+                if (parent == nullptr || root->neighbors[i] != parent)
+                {
+                    destroy_nodes(root->neighbors[i], root);
+                }
+            }
+            free(root->neighbors);
+            free(root);
+        }
+    }
+
+
+
 
     ListNode* search(DL_List* existingPath, std::pair<int, int> searchedCoordinates) {
         ListNode* searchedNode = existingPath->first;
@@ -149,20 +167,6 @@ namespace paco
         return false;
     }
 
-    void refresh_dfs(Node* root)
-    {
-        root->color = WHITE;
-
-        for (int i = 0; i < root->numberOfNeighbors; i++)
-        {
-            if (root->neighbors[i]->color != WHITE)
-            {
-                refresh_dfs(root->neighbors[i]);
-            }
-        }
-
-    }
-
     bool dfs_visit(Node* root, DL_List* existingPath, DL_List* newPath)
     {
         root->color = GRAY;
@@ -188,7 +192,19 @@ namespace paco
 
         root->color = BLACK;
         return false;
+    }
 
+    void refresh_dfs(Node* root)
+    {
+        root->color = WHITE;
+
+        for (int i = 0; i < root->numberOfNeighbors; i++)
+        {
+            if (root->neighbors[i]->color != WHITE)
+            {
+                refresh_dfs(root->neighbors[i]);
+            }
+        }
     }
 
     DL_List* path_from_node(Node* root, Node searchedNode)
@@ -206,6 +222,12 @@ namespace paco
         return resultedPath;
     }
 
+    DL_List* concat_lists(DL_List* previousPath, DL_List* newPath)
+    {
+        ListNode* sharedNode = search(previousPath, newPath->first->coordinates);
+        return insert_after_key(previousPath, sharedNode, newPath);
+    }
+
     DL_List* path_from_list(Node* root, DL_List* searchedList)
     {
         DL_List* resultedPath = (DL_List*)malloc(sizeof(DL_List));
@@ -218,13 +240,7 @@ namespace paco
             refresh_dfs(root);
         }
 
-        return resultedPath;
-    }
-
-    DL_List* concat_lists(DL_List* previousPath, DL_List* newPath)
-    {
-        ListNode* sharedNode = search(previousPath, newPath->first->coordinates);
-        return insert_after_key(previousPath, sharedNode, newPath);
+        return concat_lists(searchedList, resultedPath);
     }
 
     DL_List* get_next_move(Node* root, Node* goal, DL_List* existingPath)
@@ -238,22 +254,23 @@ namespace paco
                 exit(-1);
             }
         }
-        else if (search(existingPath, goal->coordinates) != NULL)
-        {
-            ListNode* newTail = search(existingPath, goal->coordinates);
-            delete_after_node(newTail->next);
-            existingPath->last = newTail;
-        }
         else
         {
-            DL_List* newPath = path_from_list(goal, existingPath);
-            if (newPath == NULL)
+            ListNode* newTail = search(existingPath, goal->coordinates);
+            if (newTail != NULL)
             {
-                std::cerr << "Error creating the path for npc!\n";
-                exit(-1);
+                delete_after_node(newTail->next);
+                existingPath->last = newTail;
             }
-          
-            concat_lists(existingPath, newPath);
+            else
+            {
+                DL_List* newPath = path_from_list(goal, existingPath);
+                if (newPath == NULL)
+                {
+                    std::cerr << "Error creating the path for npc!\n";
+                    exit(-1);
+                }
+            }
         }
 
         if (root->coordinates == existingPath->first->coordinates)
@@ -296,7 +313,7 @@ namespace paco
                 }
             }
 
-            if (nodes[0].neighbors && nodes[1].neighbors && nodes[2].neighbors && nodes[3].neighbors && nodes[4].neighbors && nodes[5].neighbors 
+            if (nodes[0].neighbors && nodes[1].neighbors && nodes[2].neighbors && nodes[3].neighbors && nodes[4].neighbors && nodes[5].neighbors
                 && nodes[6].neighbors && nodes[7].neighbors && nodes[8].neighbors && nodes[9].neighbors && nodes[10].neighbors && nodes[11].neighbors)
             {
                 nodes[0].neighbors[0] = &nodes[3];
@@ -307,11 +324,11 @@ namespace paco
 
                 nodes[3].neighbors[0] = &nodes[0];
                 nodes[3].neighbors[1] = &nodes[4];
-                //nodes[3].neighbors[2] = &nodes[6];
+                nodes[3].neighbors[2] = &nodes[6];
 
                 nodes[4].neighbors[0] = &nodes[3];
                 nodes[4].neighbors[1] = &nodes[1];
-                //nodes[4].neighbors[2] = &nodes[7];
+                nodes[4].neighbors[2] = &nodes[7];
 
                 nodes[5].neighbors[0] = &nodes[8];
 
@@ -327,7 +344,7 @@ namespace paco
 
                 nodes[10].neighbors[0] = &nodes[7];
                 nodes[10].neighbors[1] = &nodes[9];
-                //nodes[10].neighbors[2] = &nodes[11];
+                nodes[10].neighbors[2] = &nodes[11];
 
                 nodes[11].neighbors[0] = &nodes[10];
                 nodes[11].neighbors[1] = &nodes[8];
